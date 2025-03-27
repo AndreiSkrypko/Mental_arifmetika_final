@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}Игра "Просто"{% endblock %}
+
+{% block mycss %}
+<style>
+    .centered-content {
+        height: 20vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: #222;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        background: rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        margin: 20px auto;
+        text-align: center;
+    }
+
+    .answer-input {
+        font-size: 1.5rem;
+        padding: 10px;
+        width: 100%;
+        border: 2px solid #0044cc;
+        border-radius: 5px;
+        text-align: center;
+        background: #f8f9fa;
+    }
+
+    .slider-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .slider-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .slider {
+        width: 80%;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 10px;
+        background: linear-gradient(90deg, #ff0000, #ffa500, #ffff00, #008000, #0044cc);
+        border-radius: 5px;
+        outline: none;
+        transition: 0.3s;
+    }
+
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #0044cc;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .slider-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-left: 10px;
+        color: #0044cc;
+    }
+
+    .submit-button {
+        padding: 12px 20px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+        background-color: #28a745;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        width: 100%;
+    }
+
+    .submit-button:hover {
+        background-color: #218838;
+    }
+
+    .label {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if mode == 1 %}
+<!-- Форма выбора настроек -->
+<form method="post" action="{% url 'simply' mode=1 %}">
+    {% csrf_token %}
+    <div class="form-container">
+        <label for="range" class="label">Выберите диапазон чисел</label>
+        <select id="range" name="range" class="answer-input">
+            {% for key, value in ranges.items %}
+            <option value="{{ key }}">{{ key }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="difficulty" class="label">Выберите сложность</label>
+        <select id="difficulty" name="difficulty" class="answer-input">
+            <option value="1">Легко</option>
+            <option value="2">Средне</option>
+            <option value="3">Сложно</option>
+            <option value="4">Очень сложно</option>
+            <option value="5">Эксперт</option>
+        </select>
+
+        <div class="slider-container">
+            <label for="examples" class="label">Количество чисел</label>
+            <div class="slider-wrapper">
+                <input type="range" id="examples" name="examples" min="5" max="20" step="1" value="10" class="slider" oninput="updateSliderValue(this.value)">
+                <span id="sliderValue" class="slider-value">10</span>
+            </div>
+        </div>
+
+        <div class="slider-container">
+            <label for="speed" class="label">Скорость (в секундах)</label>
+            <div class="slider-wrapper">
+                <input type="range" id="speed" name="speed" min="0.1" max="10" step="0.1" value="1" class="slider" oninput="updateSpeedValue(this.value)">
+                <span id="speedValue" class="slider-value">1</span>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-button">Начать</button>
+    </div>
+</form>
+
+<script>
+    function updateSliderValue(value) {
+        document.getElementById("sliderValue").textContent = value;
+    }
+
+    function updateSpeedValue(value) {
+        document.getElementById("speedValue").textContent = value;
+    }
+</script>
+
+{% elif mode == 2 %}
+<!-- Таймер отсчёта перед началом игры -->
+<div class="centered-content" id="countdownTimer">3</div>
+
+<script>
+    let countdown = 3;
+    const countdownElement = document.getElementById('countdownTimer');
+
+    const countdownInterval = setInterval(function() {
+        countdownElement.textContent = countdown;
+        countdown--;
+        if (countdown < 0) {
+            clearInterval(countdownInterval);
+            countdownElement.textContent = "Старт!";
+            setTimeout(function() {
+                window.location.href = "{% url 'simply' mode=3 %}";
+            }, 1000);
+        }
+    }, 1000);
+</script>
+
+{% elif mode == 3 %}
+<!-- Игра: отображаем числа и ждём ответа -->
+<div class="centered-content" id="numberDisplay">...</div>
+
+<div id="answerSection" class="form-container" style="display: none;">
+    <label for="userAnswer" class="label">Введите сумму чисел:</label>
+    <input type="number" id="userAnswer" class="answer-input">
+    <button id="submitAnswer" class="submit-button">Отправить</button>
+</div>
+
+<script>
+    let numbers = {{ numbers|safe }};
+    let index = 0;
+    let speed = {{ speed }};
+    let numberDisplay = document.getElementById("numberDisplay");
+    let answerSection = document.getElementById("answerSection");
+
+    function showNumbers() {
+        if (index < numbers.length) {
+            numberDisplay.textContent = numbers[index];
+            index++;
+            setTimeout(showNumbers, speed * 1000);
+        } else {
+            numberDisplay.textContent = "Введите ответ!";
+            answerSection.style.display = "flex";
+        }
+    }
+
+    setTimeout(showNumbers, 1000);
+
+    document.getElementById("submitAnswer").onclick = function() {
+        let userAnswer = document.getElementById("userAnswer").value;
+
+        fetch("{% url 'simply' mode=4 %}", {
+            method: 'POST',
+            body: new URLSearchParams({
+                'user_answer': userAnswer,
+                'correct_answer': {{ total }}
+            })
+        })
+        .then(response => response.json())
+        .then(data => alert(data.result));
+    }
+</script>
+
+{% elif mode == 4 %}
+<!-- Результат игры -->
+<p>{{ result }}</p>
+{% endif %}
+{% endblock %}

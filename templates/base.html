@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Подключение Bootstrap для стилизации -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+
+    <style>
+        /* Основные стили для страницы */
+        body {
+            position: relative; /* Устанавливаем относительное позиционирование для фонового изображения */
+            height: 100vh; /* Высота страницы на весь экран */
+            margin: 0; /* Убираем стандартные отступы */
+            font-family: 'Arial', sans-serif; /* Шрифт для текста */
+            color: white; /* Белый цвет текста */
+        }
+
+        /* Фон с полупрозрачностью */
+        body::before {
+            content: ''; /* Содержимое не отображается */
+            position: absolute; /* Позиционирование на весь экран */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/static/фон.jpg') no-repeat center center fixed; /* Фоновое изображение */
+            background-size: cover; /* Масштабируем фон так, чтобы он полностью покрывал экран */
+            opacity: 0.12; /* Устанавливаем полупрозрачность фона */
+            z-index: -1; /* Отправляем фон за контент */
+        }
+
+        /* Контейнер для основного контента */
+        .content {
+            background: rgba(64, 224, 208, 0.6); /* Полупрозрачный фон */
+            padding: 30px; /* Отступы внутри контейнера */
+            border-radius: 12px; /* Скругленные углы */
+            box-shadow: 0 4px 8px rgba(0, 0, 255, 1); /* Тень */
+            text-align: center; /* Выравнивание текста по центру */
+            display: flex; /* Используем Flexbox для выравнивания */
+            justify-content: space-around; /* Равномерное распределение элементов */
+            align-items: center; /* Центрирование элементов по вертикали */
+            width: 100%; /* Занимает всю ширину */
+            position: absolute; /* Позиционируем в верхней части страницы */
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 0; /* Отступы сверху и снизу */
+        }
+
+        /* Стили для заголовка */
+        h2 {
+            margin-bottom: 20px; /* Отступ снизу */
+            font-size: 2.5rem; /* Размер шрифта */
+            text-shadow: 2px 2px 4px rgba(0, 123, 255, 0.7); /* Синий отлив на тексте */
+            width: 100%;
+            text-align: center;
+            margin-top: 20px; /* Отступ сверху */
+        }
+
+        /* Стили для кнопок */
+        .btn-custom {
+            margin: 0 10px; /* Отступы между кнопками */
+            padding: 15px 30px; /* Размер кнопок */
+            font-size: 1.2rem; /* Размер шрифта */
+            font-weight: bold; /* Жирный шрифт */
+            color: white; /* Белый цвет текста */
+            background-color: rgba(0, 123, 255, 1); /* Синий фон кнопки */
+            border: none; /* Убираем обводку */
+            border-radius: 8px; /* Скругленные углы */
+            transition: background 0.3s ease; /* Плавный переход фона при наведении */
+            text-decoration: none; /* Убираем подчеркивание у ссылки */
+            display: inline-block; /* Делаем элементы блочными */
+            position: relative;
+        }
+
+        /* Эффект при наведении на кнопку */
+        .btn-custom:hover {
+            background-color: rgba(0, 86, 179, 1); /* Меняется цвет фона при наведении */
+        }
+
+        /* Главное меню */
+        .dropdown {
+            position: relative; /* Позиционируем контейнер для выпадающего меню */
+        }
+
+        /* Стили для выпадающего меню */
+        .dropdown-content {
+            display: none; /* Изначально меню скрыто */
+            position: absolute; /* Абсолютное позиционирование для отображения меню */
+            background-color: rgba(64, 224, 208, 0.8); /* Полупрозрачный фон */
+            min-width: 200px; /* Минимальная ширина подменю */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Тень */
+            z-index: 1; /* Устанавливаем порядок отображения */
+            border-radius: 8px; /* Скругленные углы */
+        }
+
+        /* Показываем выпадающее меню при наведении на родительский элемент */
+        .dropdown:hover > .dropdown-content {
+            display: block; /* Показываем меню */
+        }
+
+        /* Стили для ссылок в выпадающем меню */
+        .dropdown-content a {
+            color: white; /* Белый цвет текста */
+            padding: 12px 16px; /* Отступы для ссылок */
+            text-decoration: none; /* Убираем подчеркивание */
+            display: block; /* Делаем ссылки блочными */
+            font-size: 1rem; /* Размер шрифта */
+        }
+
+        /* Эффект при наведении на ссылки в выпадающем меню */
+        .dropdown-content a:hover {
+            background-color: rgba(0, 86, 179, 1); /* Меняется фон ссылки при наведении */
+        }
+
+        /* Подменю "Умножение" */
+        .dropdown-sub {
+            position: relative; /* Позиционируем подменю относительно родительского элемента */
+        }
+
+        /* Подменю скрыто изначально */
+        .dropdown-sub .dropdown-content {
+            display: none; /* Скрываем подменю по умолчанию */
+            position: absolute; /* Абсолютное позиционирование */
+            top: 0; /* Позиция сверху */
+            right: 100%; /* Открываем влево от родительского элемента */
+            min-width: 200px; /* Ширина подменю */
+            background-color: rgba(64, 224, 208, 0.8); /* Фон подменю */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Тень */
+            border-radius: 8px; /* Скругленные углы */
+        }
+
+        /* Показываем подменю только при наведении на "Умножение" */
+        .dropdown-sub:hover > .dropdown-content {
+            display: block; /* Показываем подменю */
+        }
+
+    </style>
+    {% block mycss %}{% endblock %}
+</head>
+<body>
+
+<h2>Тренажёр по ментальной арифметике</h2>
+
+<div class="content">
+    <!-- Ссылки на основные разделы -->
+    <a class="btn-custom" href="/">Главная</a>
+    <a class="btn-custom" href="/">Учитель</a>
+    <a class="btn-custom" href="/">Группы</a>
+    <a class="btn-custom" href="/students_list/1/">Ученики</a>
+
+    <!-- Главное меню "Игры" -->
+    <div class="dropdown">
+        <a class="btn-custom" href="/">Игры</a>
+        <div class="dropdown-content">
+            <!-- Подменю "Умножение" -->
+            <div class="dropdown-sub">
+                <a href="#">Умножение</a>
+                <div class="dropdown-content">
+                    <a href="/multiplication_choose/1/">Умножение</a>
+                    <a href="/multiplication_to_20/1/">Умножение до 20</a>
+                    <a href="/square/1/">Возведение в квадрат</a>
+                    <a href="/tricks/1/">Хитрости</a>
+                    <a href="/multiplication_base/1/">Умножение от базы</a>
+                </div>
+            </div>
+            <!-- Остальные ссылки -->
+            <a href="/simply/1/">Просто</a>
+            <a href="main_multiplication">Таблица умножения</a>
+            <a href="brothers">Братья</a>
+            <a href="friends">Друзья</a>
+            <a href="friend_plus_brother">Друг+Брат</a>
+            <a href="flashcards">Флэшкарты</a>
+            <a href="anzan">Анзан</a>
+            <a href="division">Деление</a>
+        </div>
+    </div>
+</div>
+
+{% block content %}{% endblock %}
+
+</body>
+</html>
