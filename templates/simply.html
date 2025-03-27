@@ -187,51 +187,39 @@
 
 {% elif mode == 3 %}
 <!-- Игра: отображаем числа и ждём ответа -->
-<div class="centered-content" id="numberDisplay">...</div>
-
-<div id="answerSection" class="form-container" style="display: none;">
-    <label for="userAnswer" class="label">Введите сумму чисел:</label>
-    <input type="number" id="userAnswer" class="answer-input">
-    <button id="submitAnswer" class="submit-button">Отправить</button>
+<div class="centered-content">
+    {% for number in numbers %}
+        <p>{{ number }}</p>
+        {% if not forloop.last %}
+            <meta http-equiv="refresh" content="{{ speed }}; URL={% url 'simply' mode=3 %}?index={{ forloop.counter }}">
+        {% endif %}
+    {% endfor %}
 </div>
 
-<script>
-    let numbers = {{ numbers|safe }};
-    let index = 0;
-    let speed = {{ speed }};
-    let numberDisplay = document.getElementById("numberDisplay");
-    let answerSection = document.getElementById("answerSection");
-
-    function showNumbers() {
-        if (index < numbers.length) {
-            numberDisplay.textContent = numbers[index];
-            index++;
-            setTimeout(showNumbers, speed * 1000);
-        } else {
-            numberDisplay.textContent = "Введите ответ!";
-            answerSection.style.display = "flex";
-        }
-    }
-
-    setTimeout(showNumbers, 1000);
-
-    document.getElementById("submitAnswer").onclick = function() {
-        let userAnswer = document.getElementById("userAnswer").value;
-
-        fetch("{% url 'simply' mode=4 %}", {
-            method: 'POST',
-            body: new URLSearchParams({
-                'user_answer': userAnswer,
-                'correct_answer': {{ total }}
-            })
-        })
-        .then(response => response.json())
-        .then(data => alert(data.result));
-    }
-</script>
-
-{% elif mode == 4 %}
-<!-- Результат игры -->
-<p>{{ result }}</p>
+{% if numbers|length == 0 %}
+<div id="answerSection" class="form-container">
+    <form method="post" action="{% url 'simply' mode=4 %}">
+        {% csrf_token %}
+        <label for="userAnswer" class="label">Введите сумму чисел:</label>
+        <input type="number" id="userAnswer" name="user_answer" class="answer-input" required>
+        <input type="hidden" name="correct_answer" value="{{ total }}">
+        <button type="submit" class="submit-button">Отправить</button>
+    </form>
+</div>
 {% endif %}
+{% endif %}
+{% if mode == 4 %}
+<!-- Результат игры -->
+<div class="centered-content">
+    <p>Ваш ответ: {{ user_answer }}</p>
+    <p>Правильный ответ: {{ correct_answer }}</p>
+    {% if user_answer == correct_answer %}
+        <p style="color: green; font-weight: bold;">Поздравляем! Вы ответили правильно!</p>
+    {% else %}
+        <p style="color: red; font-weight: bold;">Неправильно. Попробуйте ещё раз!</p>
+    {% endif %}
+</div>
+<a href="{% url 'simply' mode=1 %}" class="submit-button">Начать заново</a>
+{% endif %}
+
 {% endblock %}

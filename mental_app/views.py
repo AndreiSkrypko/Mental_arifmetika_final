@@ -518,20 +518,20 @@ RANGES = {
 
 def simply(request, mode):
     if mode == 1:  # Режим 1 — форма для выбора настроек
-        if request.method == 'POST':  # Форма отправляется в режиме 1
+        if request.method == 'POST':
             # Получаем значения из формы
             difficulty = int(request.POST.get("difficulty", 1))
             range_key = request.POST.get("range", "1-10")
             num_examples = int(request.POST.get("examples", 10))
             speed = float(request.POST.get("speed", 1))
 
-            # Сохраняем параметры в сессии или в другом месте, если нужно
+            # Сохраняем параметры в сессии
             request.session['difficulty'] = difficulty
             request.session['range_key'] = range_key
             request.session['num_examples'] = num_examples
             request.session['speed'] = speed
 
-            # Переходим к режиму 2 (обратный отсчёт)
+            # Переход к режиму 2 (обратный отсчёт)
             return redirect('simply', mode=2)
         return render(request, 'simply.html', {"mode": 1, "ranges": RANGES})
 
@@ -539,53 +539,44 @@ def simply(request, mode):
         return render(request, 'simply.html', {"mode": 2})
 
     elif mode == 3:  # Режим 3 — основная игра
-        if request.method == 'GET':
-            return render(request, 'simply.html', {"mode": 3})
-        if request.method == 'POST':
-            try:
-                # Получаем параметры из сессии
-                difficulty = request.session.get('difficulty', 1)
-                range_key = request.session.get('range_key', '1-10')
-                num_examples = request.session.get('num_examples', 10)
-                speed = request.session.get('speed', 1)
+        # Получаем параметры из сессии
+        difficulty = request.session.get('difficulty', 1)
+        range_key = request.session.get('range_key', '1-10')
+        num_examples = request.session.get('num_examples', 10)
+        speed = request.session.get('speed', 1)
 
-                # Получаем диапазон чисел
-                range_values = RANGES.get(range_key)
-                if not range_values or len(range_values) != 2:
-                    return JsonResponse({"error": "Некорректный диапазон"}, status=400)
+        # Получаем диапазон чисел
+        range_values = RANGES.get(range_key)
+        if not range_values or len(range_values) != 2:
+            return render(request, 'simply.html', {"mode": 4, "result": "Ошибка: некорректный диапазон чисел"})
 
-                min_val, max_val = range_values
+        min_val, max_val = range_values
 
-                # Генерация чисел
-                numbers = []
-                total = 0
-                for _ in range(num_examples):
-                    num = random.randint(min_val, max_val)
-                    sign = random.choice([-1, 1])
-                    num *= sign
-                    numbers.append(num)
-                    total += num
+        # Генерация чисел
+        numbers = []
+        total = 0
+        for _ in range(num_examples):
+            num = random.randint(min_val, max_val)
+            sign = random.choice([-1, 1])
+            num *= sign
+            numbers.append(num)
+            total += num
 
-                return render(request, 'simply.html', {
-                    "mode": 3,
-                    "numbers": numbers,
-                    "total": total,
-                    "speed": speed,
-                })
-
-            except ValueError:
-                return JsonResponse({"error": "Некорректные данные формы"}, status=400)
+        return render(request, 'simply.html', {
+            "mode": 3,
+            "numbers": numbers,
+            "total": total,
+            "speed": speed,
+        })
 
     elif mode == 4:  # Режим 4 — проверка ответа
         if request.method == 'POST':
             try:
                 correct_answer = int(request.POST.get("correct_answer", 0))
                 user_answer = int(request.POST.get("user_answer", 0))
-
                 result = "Правильно!" if user_answer == correct_answer else f"Неправильно! Правильный ответ: {correct_answer}"
-                return JsonResponse({"result": result})
-
+                return render(request, 'simply.html', {"mode": 4, "user_answer": user_answer, "correct_answer": correct_answer, "result": result})
             except ValueError:
-                return JsonResponse({"error": "Ошибка в формате ответа"}, status=400)
+                return render(request, 'simply.html', {"mode": 4, "result": "Ошибка в формате ответа"})
 
-    return JsonResponse({"error": "Неверный режим"}, status=400)
+    return render(request, 'simply.html', {"mode": 4, "result": "Ошибка: неверный режим"})
