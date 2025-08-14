@@ -747,8 +747,8 @@ def teacher_profile_edit(request):
 
 # Обработчик выбора и проверки игры "Просто"
 
-# Определяем диапазоны (пример)
-RANGES = {
+# Определяем диапазоны для игры "Просто"
+SIMPLY_RANGES = {
     "1-10": (1, 10),
     "10-100": (10, 100),
     "100-1000": (100, 1000),
@@ -763,16 +763,32 @@ def simply(request, mode):
             range_key = request.POST.get("range", "1-10")
             num_examples = int(request.POST.get("examples", 10))
             speed = float(request.POST.get("speed", 1))
+            max_digit = int(request.POST.get("max_digit", 9))  # Максимальная цифра для состава чисел
 
             # Сохраняем параметры в сессии
             request.session['difficulty'] = difficulty
             request.session['range_key'] = range_key
             request.session['num_examples'] = num_examples
             request.session['speed'] = speed
+            request.session['max_digit'] = max_digit
 
             # Переход к режиму 2 (обратный отсчёт)
             return redirect('simply', mode=2)
-        return render(request, 'simply.html', {"mode": 1, "ranges": RANGES})
+        
+        # Определяем диапазоны для сложности
+        difficulty_ranges = {
+            1: "1-10",    # Легко: числа от 1 до 10
+            2: "1-50",    # Средне: числа от 1 до 50
+            3: "1-100",   # Сложно: числа от 1 до 100
+            4: "10-200",  # Очень сложно: числа от 10 до 200
+            5: "50-500"   # Эксперт: числа от 50 до 500
+        }
+        
+        return render(request, 'simply.html', {
+            "mode": 1, 
+            "ranges": SIMPLY_RANGES,
+            "difficulty_ranges": difficulty_ranges
+        })
 
     elif mode == 2:  # Режим 2 — таймер отсчёта
         return render(request, 'simply.html', {"mode": 2})
@@ -783,40 +799,118 @@ def simply(request, mode):
         range_key = request.session.get('range_key', '1-10')
         num_examples = request.session.get('num_examples', 10)
         speed = request.session.get('speed', 1)
+        max_digit = request.session.get('max_digit', 9)
 
-        # Получаем диапазон чисел
-        range_values = RANGES.get(range_key)
-        if not range_values or len(range_values) != 2:
-            return render(request, 'simply.html', {"mode": 4, "result": "Ошибка: некорректный диапазон чисел"})
+        # Получаем диапазон чисел на основе сложности
+        difficulty_ranges = {
+            1: (1, 10),     # Легко: числа от 1 до 10
+            2: (1, 50),     # Средне: числа от 1 до 50
+            3: (1, 100),    # Сложно: числа от 1 до 100
+            4: (10, 200),   # Очень сложно: числа от 10 до 200
+            5: (50, 500)    # Эксперт: числа от 50 до 500
+        }
+        
+        min_val, max_val = difficulty_ranges.get(difficulty, (1, 10))
 
-        min_val, max_val = range_values
-
-        # Генерация чисел
+        # Генерация чисел с учетом максимальной цифры
         numbers = []
         total = 0
+        
         for _ in range(num_examples):
+            # Генерируем число в заданном диапазоне
             num = random.randint(min_val, max_val)
+            
+            # Проверяем, что все цифры в числе не превышают max_digit
+            while any(int(digit) > max_digit for digit in str(abs(num))):
+                num = random.randint(min_val, max_val)
+            
+            # Случайно выбираем знак (+ или -)
             sign = random.choice([-1, 1])
             num *= sign
+            
             numbers.append(num)
             total += num
 
-        return render(request, 'simply.html', {
-            "mode": 3,
-            "numbers": numbers,
-            "total": total,
-            "speed": speed,
-        })
+        # Сохраняем числа и общую сумму в сессии для последующего использования
+        request.session['game_numbers'] = numbers
+        request.session['game_total'] = total
+        request.session['current_number_index'] = 0
+
+        # Сразу переходим к показу первого числа
+        return redirect('simply', mode=5)
 
     elif mode == 4:  # Режим 4 — проверка ответа
         if request.method == 'POST':
             try:
                 correct_answer = int(request.POST.get("correct_answer", 0))
                 user_answer = int(request.POST.get("user_answer", 0))
-                result = "Правильно!" if user_answer == correct_answer else f"Неправильно! Правильный ответ: {correct_answer}"
-                return render(request, 'simply.html', {"mode": 4, "user_answer": user_answer, "correct_answer": correct_answer, "result": result})
+                is_correct = user_answer == correct_answer
+                
+                return render(request, 'simply.html', {
+                    "mode": 4, 
+                    "user_answer": user_answer, 
+                    "correct_answer": correct_answer, 
+                    "is_correct": is_correct
+                })
             except ValueError:
                 return render(request, 'simply.html', {"mode": 4, "result": "Ошибка в формате ответа"})
+
+    elif mode == 5:  # Режим 5 — показ чисел по одному
+        if request.method == 'POST':
+            # Переход к следующему числу
+            current_index = request.session.get('current_number_index', 0)
+            current_index += 1
+            request.session['current_number_index'] = current_index
+            
+            # Проверяем, все ли числа показаны
+            numbers = request.session.get('game_numbers', [])
+            if current_index >= len(numbers):
+                # Все числа показаны, переходим к вводу ответа
+                return render(request, 'simply.html', {
+                    "mode": 6,  # Режим ввода ответа
+                    "total": request.session.get('game_total', 0)
+                })
+            
+            # Показываем следующее число
+            current_number = numbers[current_index]
+            print(f"DEBUG: Показываем число {current_number}, индекс {current_index + 1}, всего {len(numbers)}")
+            print(f"DEBUG GET: Показываем число {current_number}, индекс {current_index + 1}, всего {len(numbers)}")
+            return render(request, 'simply.html', {
+                "mode": 5,
+                "current_number": current_number,
+                "current_index": current_index + 1,
+                "total_count": len(numbers),
+                "speed": request.session.get('speed', 1)
+            })
+        else:
+            # GET запрос - показываем первое число
+            current_index = request.session.get('current_number_index', 0)
+            numbers = request.session.get('game_numbers', [])
+            speed = request.session.get('speed', 1)
+            
+            if current_index >= len(numbers):
+                # Все числа показаны, переходим к вводу ответа
+                return render(request, 'simply.html', {
+                    "mode": 6,  # Режим ввода ответа
+                    "total": request.session.get('game_total', 0)
+                })
+            
+            # Показываем текущее число
+            current_number = numbers[current_index]
+            
+            return render(request, 'simply.html', {
+                "mode": 5,
+                "current_number": current_number,
+                "current_index": current_index + 1,
+                "total_count": len(numbers),
+                "speed": speed
+            })
+
+    elif mode == 6:  # Режим 6 — ввод ответа
+        return render(request, 'simply.html', {
+            "mode": 6,
+            "total": request.session.get('game_total', 0)
+        })
 
     return render(request, 'simply.html', {"mode": 4, "result": "Ошибка: неверный режим"})
 
