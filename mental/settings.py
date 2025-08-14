@@ -127,3 +127,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+
+# Настройки аутентификации
+LOGIN_URL = '/teacher/login/'
+LOGIN_REDIRECT_URL = '/teacher/dashboard/'
+LOGOUT_REDIRECT_URL = '/'

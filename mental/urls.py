@@ -13,15 +13,67 @@ from mental_app import views
 
 # --- 3. Передача данных может быть 2-умя способами: ---
 # 1. Передача ДАННЫХ через [интернет-адрес] - http://127.0.0.1:8000/products/8/Samsung
-#    Данные будут находиться: В аргументах метода обработки URL
-# 2. Передача ДАННЫХ [по строке запроса] - http://127.0.0.1:8000/products?product_id=3&name=Samsung
-#    Данные будут находиться: В первом аргументе "request" метода обработки URL - request.GET.get()
+#    Данные будут находиться: В аргументах функции обработки URL
+# 2. Передача ДАННЫХ [по строке запроса] - http://127.0.0.1:products?product_id=3&name=Samsung
+#    Данные будут находиться: В первом аргументе "request" функции обработки URL - request.GET.get()
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Стандартный путь к административной панели Django
 
     path('', views.index, name='index'),  # Главная страница (обрабатывается функцией index)
+
+    # Маршруты для учителей
+    path('teacher/register/', views.teacher_register, name='teacher_register'),
+    path('teacher/login/', views.teacher_login, name='teacher_login'),
+    path('teacher/logout/', views.teacher_logout, name='teacher_logout'),
+    path('teacher/dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('teacher/profile/edit/', views.teacher_profile_edit, name='teacher_profile_edit'),
+    
+    # Маршруты для классов
+    path('teacher/classes/', views.class_list, name='class_list'),
+    path('teacher/classes/create/', views.class_create, name='class_create'),
+    path('teacher/classes/<int:class_id>/edit/', views.class_edit, name='class_edit'),
+    path('teacher/classes/<int:class_id>/delete/', views.class_delete, name='class_delete'),
+    
+    # Маршруты для учеников
+    path('teacher/students/', views.students_list, name='students_list'),
+    path('teacher/classes/<int:class_id>/students/', views.students_list, name='students_list_by_class'),
+    path('teacher/students/create/', views.student_create, name='student_create'),
+    path('teacher/classes/<int:class_id>/students/create/', views.student_create, name='student_create_in_class'),
+    path('teacher/students/<int:student_id>/edit/', views.student_edit, name='student_edit'),
+    path('teacher/students/<int:student_id>/delete/', views.student_delete, name='student_delete'),
+    
+    # Маршруты для аккаунтов учеников
+    path('teacher/students/<int:student_id>/create-account/', views.create_student_account, name='create_student_account'),
+    path('teacher/students/<int:student_id>/delete-account/', views.delete_student_account, name='delete_student_account'),
+    
+    # Маршруты для домашних заданий
+    path('teacher/classes/<int:class_id>/homework/', views.homework_list, name='homework_list'),
+    path('teacher/classes/<int:class_id>/homework/create/', views.homework_create, name='homework_create'),
+    path('teacher/homework/<int:homework_id>/edit/', views.homework_edit, name='homework_edit'),
+    path('teacher/homework/<int:homework_id>/delete/', views.homework_delete, name='homework_delete'),
+
+    # Маршруты для посещений
+    path('teacher/classes/<int:class_id>/attendance/', views.attendance_list, name='attendance_list'),
+    path('teacher/classes/<int:class_id>/attendance/create/', views.attendance_create, name='attendance_create'),
+    path('teacher/classes/<int:class_id>/attendance/<str:date>/edit/', views.attendance_edit, name='attendance_edit'),
+    path('teacher/classes/<int:class_id>/attendance/<str:date>/delete/', views.attendance_delete, name='attendance_delete'),
+    path('teacher/classes/<int:class_id>/payment-settings/', views.payment_settings_edit, name='payment_settings_edit'),
+
+    # Маршруты для месячного планирования
+    path('teacher/classes/<int:class_id>/monthly-schedule/', views.monthly_schedule_list, name='monthly_schedule_list'),
+    path('teacher/classes/<int:class_id>/monthly-schedule/create/', views.monthly_schedule_create, name='monthly_schedule_create'),
+    path('teacher/classes/<int:class_id>/monthly-schedule/<int:schedule_id>/edit/', views.monthly_schedule_edit, name='monthly_schedule_edit'),
+    path('teacher/classes/<int:class_id>/monthly-schedule/<int:schedule_id>/delete/', views.monthly_schedule_delete, name='monthly_schedule_delete'),
+    path('teacher/classes/<int:class_id>/monthly-schedule/<int:schedule_id>/carry-over/', views.carry_over_payments, name='carry_over_payments'),
+
+    # Маршруты для учеников
+    path('student/login/', views.student_login, name='student_login'),
+    path('student/logout/', views.student_logout, name='student_logout'),
+    path('student/dashboard/', views.student_dashboard, name='student_dashboard'),
+    path('student/homework/', views.student_homework_list, name='student_homework_list'),
+    path('student/attendance/', views.student_attendance_list, name='student_attendance_list'),
 
     path('multiplication_choose/<int:mode>/', views.multiplication_choose, name='multiplication_choose'),
     # Путь для выбора чисел, отображения примера и проверки ответа
@@ -37,13 +89,7 @@ urlpatterns = [
 
     path('simply/<int:mode>/', views.simply, name='simply'),
 
-    path('students_list/', views.students_list, name='students_list_with_mode'),
-
-    path('students_list/<int:mode>/', views.students_list, name='students_list_with_mode'),
-
-    path('students_list/<int:mode>/<int:student_id>/', views.students_list, name='students_list_with_mode_and_id'),
-    # Редактирование студента
-
+    # Старые маршруты для обратной совместимости
     path('delete_student/<int:student_id>/', views.students_list, {'mode': 4}, name='delete_student'),
     # Новый URL для удаления
 ]
