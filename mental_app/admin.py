@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from .models import TeacherProfile, Class, Students, StudentAccount, Homework, Attendance, PaymentSettings, MonthlySchedule, ClassGameAccess
+from .models import (
+    Students, Class, TeacherProfile, StudentAccount, 
+    Homework, PaymentSettings, ClassGameAccess, 
+    Attendance, GameSettings
+)
 
 class TeacherProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'phone', 'school', 'subject', 'status', 'created_at']
@@ -66,12 +70,12 @@ class PaymentSettingsAdmin(admin.ModelAdmin):
     list_editable = ['is_active', 'monthly_fee', 'payment_day']
 
 
-class MonthlyScheduleAdmin(admin.ModelAdmin):
-    list_display = ['class_group', 'month', 'year', 'is_active', 'created_at']
-    list_filter = ['month', 'year', 'is_active', 'created_at']
-    search_fields = ['class_group__name']
-    list_editable = ['is_active']
-    ordering = ['-year', '-month']
+# Убираем MonthlyScheduleAdmin, так как модель больше не существует
+# class MonthlyScheduleAdmin(admin.ModelAdmin):
+#     list_display = ['class_group', 'start_date', 'end_date', 'weekdays']
+#     list_filter = ['class_group', 'start_date', 'end_date']
+#     search_fields = ['class_group__name']
+#     date_hierarchy = 'start_date'
 
 
 # Регистрируем модели
@@ -82,8 +86,15 @@ admin.site.register(StudentAccount, StudentAccountAdmin)
 admin.site.register(Homework, HomeworkAdmin)
 admin.site.register(Attendance, AttendanceAdmin)
 admin.site.register(PaymentSettings, PaymentSettingsAdmin)
-admin.site.register(MonthlySchedule, MonthlyScheduleAdmin)
+# admin.site.register(MonthlySchedule, MonthlyScheduleAdmin) # Удалено
 admin.site.register(ClassGameAccess, admin.ModelAdmin)
+
+@admin.register(GameSettings)
+class GameSettingsAdmin(admin.ModelAdmin):
+    list_display = ['user', 'game_type', 'updated_at']
+    list_filter = ['game_type', 'updated_at']
+    search_fields = ['user__username', 'user__first_name', 'user__last_name']
+    readonly_fields = ['created_at', 'updated_at']
 
 # Отменяем регистрацию стандартной модели User, так как мы будем использовать TeacherProfile
 # admin.site.unregister(User)

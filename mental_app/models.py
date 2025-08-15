@@ -197,3 +197,18 @@ class Attendance(models.Model):
         verbose_name_plural = 'Посещения'
         ordering = ['-date', 'student__surname', 'student__name']
         unique_together = ['student', 'date', 'class_group']
+
+class GameSettings(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    game_type = models.CharField(max_length=50, verbose_name="Тип игры")
+    settings_data = models.JSONField(verbose_name="Данные настроек")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+
+    class Meta:
+        verbose_name = "Настройки игры"
+        verbose_name_plural = "Настройки игр"
+        unique_together = ['user', 'game_type']
+
+    def __str__(self):
+        return f"Настройки {self.game_type} для {self.user.username}"

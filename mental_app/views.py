@@ -7,7 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseForbidden
 from django.utils import timezone
-from .models import Students, TeacherProfile, Class, StudentAccount, Homework, Attendance, PaymentSettings, MonthlySchedule, ClassGameAccess
+from .models import (
+    Students, Class, TeacherProfile, StudentAccount, 
+    Homework, PaymentSettings, ClassGameAccess, 
+    Attendance, GameSettings
+)
 from .forms import StudentForm, TeacherRegistrationForm, TeacherLoginForm, ClassForm, TeacherProfileUpdateForm, StudentAccountForm, StudentLoginForm, HomeworkForm, AttendanceForm, AttendanceDateForm, PaymentSettingsForm, MonthlyScheduleForm, MonthlyAttendanceForm
 
 # Определяем словарь диапазонов чисел
@@ -419,8 +423,8 @@ def multiplication_base(request, mode):
                     first_multipliers.extend(RANGES.get(r, []))
 
                 if first_multipliers:
-                    new_first = random.choice(first_multipliers)
-                    new_second = random.choice(first_multipliers)
+                    new_first = random.choice(first_multipliers)  # Случайное число для нового примера
+                    new_second = random.choice(first_multipliers)  # Случайное число для нового примера
                     
                     # Случайно выбираем знак для новых чисел
                     first_sign = random.choice([-1, 1])
@@ -857,35 +861,59 @@ def simply(request, mode):
     if mode == 1:  # Режим 1 — форма для выбора настроек
         if request.method == 'POST':
             # Получаем значения из формы
-            difficulty = int(request.POST.get("difficulty", 1))
-            range_key = request.POST.get("range", "1-10")
+            range_key = request.POST.get("range", "2")
             num_examples = int(request.POST.get("examples", 10))
             speed = float(request.POST.get("speed", 1))
-            max_digit = int(request.POST.get("max_digit", 9))  # Максимальная цифра для состава чисел
+            max_digit = int(request.POST.get("max_digit", 9))
 
             # Сохраняем параметры в сессии
-            request.session['difficulty'] = difficulty
             request.session['range_key'] = range_key
             request.session['num_examples'] = num_examples
             request.session['speed'] = speed
             request.session['max_digit'] = max_digit
 
+            # Сохраняем настройки в базе данных, если пользователь авторизован
+            if request.user.is_authenticated:
+                settings_data = {
+                    'range_key': range_key,
+                    'num_examples': num_examples,
+                    'speed': speed,
+                    'max_digit': max_digit
+                }
+                save_game_settings(request.user, 'simply', settings_data)
+
             # Переход к режиму 2 (обратный отсчёт)
             return redirect('simply', mode=2)
-        
-        # Определяем диапазоны для сложности
-        difficulty_ranges = {
-            1: "1-10",    # Легко: числа от 1 до 10
-            2: "1-50",    # Средне: числа от 1 до 50
-            3: "1-100",   # Сложно: числа от 1 до 100
-            4: "10-200",  # Очень сложно: числа от 10 до 200
-            5: "50-500"   # Эксперт: числа от 50 до 500
+
+        # Определяем диапазоны для выбора пользователя
+        range_options = {
+            1: "от 1 до 10",
+            2: "от 10 до 100", 
+            3: "от 100 до 1000",
+            4: "от 1000 до 10000"
         }
+
+        # Загружаем сохраненные настройки, если пользователь авторизован
+        saved_settings = None
+        if request.user.is_authenticated:
+            saved_settings = load_game_settings(request.user, 'simply')
+
+        # Устанавливаем значения по умолчанию или из сохраненных настроек
+        default_range = saved_settings.get('range_key', '2') if saved_settings else '2'
+        default_examples = saved_settings.get('num_examples', 10) if saved_settings else 10
+        default_speed = saved_settings.get('speed', 1) if saved_settings else 1
+        default_max_digit = saved_settings.get('max_digit', 9) if saved_settings else 9
         
         return render(request, 'simply.html', {
             "mode": 1, 
             "ranges": SIMPLY_RANGES,
-            "difficulty_ranges": difficulty_ranges
+            "range_options": range_options,
+            "saved_settings": {
+                'range_key': default_range,
+                'num_examples': default_examples,
+                'speed': default_speed,
+                'max_digit': default_max_digit
+            }
         })
 
     elif mode == 2:  # Режим 2 — таймер отсчёта
@@ -893,22 +921,38 @@ def simply(request, mode):
 
     elif mode == 3:  # Режим 3 — основная игра
         # Получаем параметры из сессии
-        difficulty = request.session.get('difficulty', 1)
-        range_key = request.session.get('range_key', '1-10')
+        range_key = request.session.get('range_key', '2')
         num_examples = request.session.get('num_examples', 10)
         speed = request.session.get('speed', 1)
         max_digit = request.session.get('max_digit', 9)
 
-        # Получаем диапазон чисел на основе сложности
-        difficulty_ranges = {
-            1: (1, 10),     # Легко: числа от 1 до 10
-            2: (1, 50),     # Средне: числа от 1 до 50
-            3: (1, 100),    # Сложно: числа от 1 до 100
-            4: (10, 200),   # Очень сложно: числа от 10 до 200
-            5: (50, 500)    # Эксперт: числа от 50 до 500
+        # Проверяем, что количество примеров в допустимом диапазоне
+        if num_examples < 2:
+            num_examples = 2
+        elif num_examples > 99:
+            num_examples = 99
+
+        # Проверяем, что скорость показа в допустимом диапазоне
+        if speed < 0.1:
+            speed = 0.1
+        elif speed > 10:
+            speed = 10
+
+        # Проверяем, что максимальная цифра в допустимом диапазоне
+        if max_digit < 2:
+            max_digit = 2
+        elif max_digit > 9:
+            max_digit = 9
+
+        # Получаем диапазон чисел на основе выбора пользователя
+        range_ranges = {
+            '1': (1, 10),        # от 1 до 10
+            '2': (10, 100),      # от 10 до 100
+            '3': (100, 1000),    # от 100 до 1000
+            '4': (1000, 10000)   # от 1000 до 10000
         }
         
-        min_val, max_val = difficulty_ranges.get(difficulty, (1, 10))
+        min_val, max_val = range_ranges.get(range_key, (10, 100))
 
         # Генерация чисел с учетом максимальной цифры
         numbers = []
@@ -922,9 +966,8 @@ def simply(request, mode):
             while any(int(digit) > max_digit for digit in str(abs(num))):
                 num = random.randint(min_val, max_val)
             
-            # Случайно выбираем знак (+ или -)
-            sign = random.choice([-1, 1])
-            num *= sign
+            # Только положительные числа
+            num = abs(num)
             
             numbers.append(num)
             total += num
@@ -2386,3 +2429,31 @@ def attendance_update(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Только POST запросы'})
+
+def save_game_settings(user, game_type, settings_data):
+    """Сохраняет настройки игры для пользователя"""
+    try:
+        game_settings, created = GameSettings.objects.get_or_create(
+            user=user,
+            game_type=game_type,
+            defaults={'settings_data': settings_data}
+        )
+        if not created:
+            game_settings.settings_data = settings_data
+            game_settings.save()
+        return True
+    except Exception as e:
+        print(f"Ошибка сохранения настроек: {e}")
+        return False
+
+def load_game_settings(user, game_type):
+    """Загружает настройки игры для пользователя"""
+    try:
+        game_settings = GameSettings.objects.filter(
+            user=user,
+            game_type=game_type
+        ).first()
+        return game_settings.settings_data if game_settings else None
+    except Exception as e:
+        print(f"Ошибка загрузки настроек: {e}")
+        return None
