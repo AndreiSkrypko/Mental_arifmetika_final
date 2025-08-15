@@ -67,8 +67,19 @@ def multiplication_choose(request, mode):
             # Сохраняем диапазоны и случайные числа в сессии
             request.session['first_multiplier_range'] = first_multiplier_range
             request.session['second_multiplier_range'] = second_multiplier_range
-            request.session['first'] = random.choice(first_multipliers)  # Случайное число из первого списка
-            request.session['second'] = random.choice(second_multipliers)  # Случайное число из второго списка
+            
+            first = random.choice(first_multipliers)  # Случайное число из первого списка
+            second = random.choice(second_multipliers)  # Случайное число из второго списка
+            
+            # Случайно выбираем знак для чисел
+            first_sign = random.choice([-1, 1])
+            second_sign = random.choice([-1, 1])
+            
+            first *= first_sign
+            second *= second_sign
+            
+            request.session['first'] = first
+            request.session['second'] = second
 
             # Переход на следующий этап (отображение примера)
             return redirect('multiplication_choose', mode=2)
@@ -110,8 +121,18 @@ def multiplication_choose(request, mode):
                                                 [])  # Получаем список чисел для второго множителя
 
                 if first_multipliers and second_multipliers:
-                    request.session['first'] = random.choice(first_multipliers)  # Случайное число для нового примера
-                    request.session['second'] = random.choice(second_multipliers)  # Случайное число для нового примера
+                    new_first = random.choice(first_multipliers)  # Случайное число для нового примера
+                    new_second = random.choice(second_multipliers)  # Случайное число для нового примера
+                    
+                    # Случайно выбираем знак для новых чисел
+                    first_sign = random.choice([-1, 1])
+                    second_sign = random.choice([-1, 1])
+                    
+                    new_first *= first_sign
+                    new_second *= second_sign
+                    
+                    request.session['first'] = new_first
+                    request.session['second'] = new_second
             else:
                 result_message = "Неверно! Попробуйте снова."  # Сообщение о неверном ответе
                 result_color = "red"  # Цвет сообщения
@@ -156,8 +177,19 @@ def multiplication_to_20(request, mode):
             # Сохраняем диапазоны и случайные числа в сессии
             request.session['first_multiplier_range'] = first_multiplier_range  # Диапазон первого множителя
             request.session['second_multiplier'] = second_multiplier  # Указанный второй множитель
-            request.session['first'] = random.choice(first_multipliers)  # Случайное число из первого диапазона
-            request.session['second'] = second_multiplier  # Указанный второй множитель
+            
+            first = random.choice(first_multipliers)  # Случайное число из первого диапазона
+            
+            # Случайно выбираем знак для первого числа
+            first_sign = random.choice([-1, 1])
+            first *= first_sign
+            
+            # Случайно выбираем знак для второго числа
+            second_sign = random.choice([-1, 1])
+            second = second_multiplier * second_sign
+            
+            request.session['first'] = first
+            request.session['second'] = second
 
             # Переход на следующий этап (отображение примера)
             return redirect('multiplication_to_20', mode=2)
@@ -198,8 +230,18 @@ def multiplication_to_20(request, mode):
                                                [])  # Получаем список чисел для первого множителя
 
                 if first_multipliers:
-                    request.session['first'] = random.choice(first_multipliers)  # Случайное число для нового примера
-                    request.session['second'] = second  # Второй множитель остается неизменным
+                    new_first = random.choice(first_multipliers)  # Случайное число для нового примера
+                    
+                    # Случайно выбираем знак для нового первого числа
+                    first_sign = random.choice([-1, 1])
+                    new_first *= first_sign
+                    
+                    # Случайно выбираем знак для второго числа
+                    second_sign = random.choice([-1, 1])
+                    new_second = second * second_sign
+                    
+                    request.session['first'] = new_first
+                    request.session['second'] = new_second
             else:
                 result_message = "Неверно! Попробуйте снова."  # Сообщение о неверном ответе
                 result_color = "red"  # Цвет сообщения
@@ -235,6 +277,13 @@ def square(request, mode):
 
             first = random.choice(first_multipliers)
             second = random.choice(first_multipliers)
+            
+            # Случайно выбираем знак для чисел
+            first_sign = random.choice([-1, 1])
+            second_sign = random.choice([-1, 1])
+            
+            first *= first_sign
+            second *= second_sign
 
             request.session['first'] = first
             request.session['second'] = second
@@ -274,8 +323,18 @@ def square(request, mode):
                     first_multipliers.extend(RANGES.get(r, []))
 
                 if first_multipliers:
-                    request.session['first'] = random.choice(first_multipliers)
-                    request.session['second'] = random.choice(first_multipliers)
+                    new_first = random.choice(first_multipliers)
+                    new_second = random.choice(first_multipliers)
+                    
+                    # Случайно выбираем знак для новых чисел
+                    first_sign = random.choice([-1, 1])
+                    second_sign = random.choice([-1, 1])
+                    
+                    new_first *= first_sign
+                    new_second *= second_sign
+                    
+                    request.session['first'] = new_first
+                    request.session['second'] = new_second
             else:
                 result_message = "Неверно! Попробуйте снова."
                 result_color = "red"
@@ -309,6 +368,13 @@ def multiplication_base(request, mode):
 
             first = random.choice(first_multipliers)
             second = random.choice(first_multipliers)
+            
+            # Случайно выбираем знак для чисел
+            first_sign = random.choice([-1, 1])
+            second_sign = random.choice([-1, 1])
+            
+            first *= first_sign
+            second *= second_sign
 
             request.session['first'] = first
             request.session['second'] = second
@@ -348,8 +414,18 @@ def multiplication_base(request, mode):
                     first_multipliers.extend(RANGES.get(r, []))
 
                 if first_multipliers:
-                    request.session['first'] = random.choice(first_multipliers)
-                    request.session['second'] = random.choice(first_multipliers)
+                    new_first = random.choice(first_multipliers)
+                    new_second = random.choice(first_multipliers)
+                    
+                    # Случайно выбираем знак для новых чисел
+                    first_sign = random.choice([-1, 1])
+                    second_sign = random.choice([-1, 1])
+                    
+                    new_first *= first_sign
+                    new_second *= second_sign
+                    
+                    request.session['first'] = new_first
+                    request.session['second'] = new_second
             else:
                 result_message = "Неверно! Попробуйте снова."
                 result_color = "red"
@@ -373,6 +449,14 @@ def generate_two_digit_pair():
     unit2 = 10 - unit1  # Вторая единица должна дополнять до 10
     first = tens * 10 + unit1
     second = tens * 10 + unit2
+    
+    # Случайно выбираем знак для чисел
+    first_sign = random.choice([-1, 1])
+    second_sign = random.choice([-1, 1])
+    
+    first *= first_sign
+    second *= second_sign
+    
     return first, second
 
 
@@ -385,6 +469,14 @@ def generate_three_digit_pair():
     unit2 = 10 - unit1  # Вторая единица дополняет до 10
     first = hundreds * 100 + tens * 10 + unit1
     second = hundreds * 100 + tens * 10 + unit2
+    
+    # Случайно выбираем знак для чисел
+    first_sign = random.choice([-1, 1])
+    second_sign = random.choice([-1, 1])
+    
+    first *= first_sign
+    second *= second_sign
+    
     return first, second
 
 
@@ -1679,3 +1771,201 @@ def carry_over_payments(request, class_id, schedule_id):
     except (Class.DoesNotExist, MonthlySchedule.DoesNotExist):
         messages.error(request, 'Класс или расписание не найдено')
         return redirect('class_list')
+
+
+def get_abacus_representation(number, difficulty):
+    """Преобразует число в представление для счетов (абакуса)"""
+    abs_number = abs(number)
+    
+    # Разбиваем число на разряды
+    hundreds = (abs_number // 100) % 10
+    tens = (abs_number // 10) % 10
+    ones = abs_number % 10
+    
+    # В настоящем абакусе:
+    # - Верхний ряд: 2 места (1 косточка = 5, 1 пустое)
+    # - Нижний ряд: 5 мест (4 косточки = 1,2,3,4, 1 пустое)
+    # - Комбинация дает числа 0-9
+    
+    def get_digit_representation(digit):
+        if digit == 0:
+            # Все косточки неактивны
+            return {
+                'upper': [False, False],  # 2 верхних места
+                'lower': [False, False, False, False, False]  # 5 нижних мест
+            }
+        elif digit <= 4:
+            # Используем только нижние косточки
+            lower_beads = [i < digit for i in range(5)]  # 5 мест, первые digit активны
+            return {
+                'upper': [False, False],  # Верхние неактивны
+                'lower': lower_beads
+            }
+        else:
+            # Используем верхнюю косточку + нижние
+            upper_beads = [True, False]  # Первое место активно (5), второе пустое
+            remaining = digit - 5
+            lower_beads = [i < remaining for i in range(5)]  # 5 мест, первые remaining активны
+            return {
+                'upper': upper_beads,
+                'lower': lower_beads
+            }
+    
+    abacus_data = {
+        'hundreds': get_digit_representation(hundreds),
+        'tens': get_digit_representation(tens),
+        'ones': get_digit_representation(ones),
+        'sign': 'positive' if number >= 0 else 'negative'
+    }
+    
+    return abacus_data
+
+
+def flashcards(request):
+    """Игра Флэшкарты - показ счетов (абакуса) для тренировки ментальной арифметики"""
+    if request.method == 'GET':
+        return render(request, 'flashcards.html', {'mode': 1})
+    
+    if request.method == 'POST':
+        mode = request.POST.get('mode', '1')
+        
+        if mode == '1':  # Настройка игры
+            difficulty = request.POST.get('difficulty', 'easy')
+            display_time = int(request.POST.get('display_time', '3'))
+            card_count = int(request.POST.get('card_count', '10'))
+            
+            # Генерируем числа в зависимости от сложности
+            if difficulty == 'easy':
+                numbers = random.sample(range(1, 21), min(card_count, 20))  # 1-20
+            elif difficulty == 'medium':
+                numbers = random.sample(range(1, 101), min(card_count, 100))  # 1-100
+            elif difficulty == 'hard':
+                numbers = random.sample(range(1, 1001), min(card_count, 1000))  # 1-1000
+            else:
+                numbers = random.sample(range(1, 101), min(card_count, 100))
+            
+            # Случайно выбираем знаки для чисел
+            signed_numbers = []
+            for num in numbers:
+                sign = random.choice([-1, 1])
+                signed_numbers.append(num * sign)
+            
+            request.session['flashcard_numbers'] = signed_numbers
+            request.session['flashcard_display_time'] = display_time
+            request.session['flashcard_current_index'] = 0
+            request.session['flashcard_answers'] = []
+            request.session['flashcard_difficulty'] = difficulty
+            request.session['flashcard_showing'] = True  # Флаг для показа карточек
+            
+            # Подготавливаем данные для отображения счетов
+            abacus_data = get_abacus_representation(signed_numbers[0], difficulty)
+            
+            return render(request, 'flashcards.html', {
+                'mode': 2,
+                'current_number': signed_numbers[0],
+                'display_time': display_time,
+                'total_cards': len(signed_numbers),
+                'current_card': 1,
+                'difficulty': difficulty,
+                'abacus_data': abacus_data
+            })
+        
+        elif mode == '2':  # Показ карточки со счетами
+            numbers = request.session.get('flashcard_numbers', [])
+            current_index = request.session.get('flashcard_current_index', 0)
+            display_time = request.session.get('flashcard_display_time', 3)
+            difficulty = request.session.get('flashcard_difficulty', 'medium')
+            showing = request.session.get('flashcard_showing', True)
+            
+            if current_index < len(numbers) and showing:
+                current_number = numbers[current_index]
+                abacus_data = get_abacus_representation(current_number, difficulty)
+                
+                return render(request, 'flashcards.html', {
+                    'mode': 2,
+                    'current_number': current_number,
+                    'display_time': display_time,
+                    'total_cards': len(numbers),
+                    'current_card': current_index + 1,
+                    'difficulty': difficulty,
+                    'abacus_data': abacus_data
+                })
+            elif current_index >= len(numbers) and showing:
+                # Показ карточек закончен, переходим к вводу ответов
+                request.session['flashcard_showing'] = False
+                return render(request, 'flashcards.html', {
+                    'mode': 3,
+                    'total_cards': len(numbers),
+                    'numbers': numbers
+                })
+            else:
+                return redirect('flashcards')
+        
+        elif mode == '3':  # Ввод ответов для всех карточек
+            numbers = request.session.get('flashcard_numbers', [])
+            user_answers = []
+            
+            # Собираем все ответы пользователя
+            for i in range(len(numbers)):
+                answer_key = f'answer_{i}'
+                user_answer = request.POST.get(answer_key, '')
+                user_answers.append(user_answer)
+            
+            # Проверяем все ответы
+            answers = []
+            correct_count = 0
+            
+            for i, (number, user_answer) in enumerate(zip(numbers, user_answers)):
+                correct = user_answer == str(number)
+                if correct:
+                    correct_count += 1
+                
+                answers.append({
+                    'number': number,
+                    'user_answer': user_answer,
+                    'correct': correct
+                })
+            
+            # Сохраняем результаты
+            request.session['flashcard_answers'] = answers
+            
+            # Показываем результаты
+            total_cards = len(numbers)
+            percentage_correct = round((correct_count / total_cards) * 100, 1) if total_cards > 0 else 0
+            
+            return render(request, 'flashcards.html', {
+                'mode': 4,
+                'answers': answers,
+                'total_cards': total_cards,
+                'correct_count': correct_count,
+                'incorrect_count': total_cards - correct_count,
+                'percentage_correct': percentage_correct
+            })
+        
+        elif mode == '4':  # Переход к следующей карточке (автоматически)
+            numbers = request.session.get('flashcard_numbers', [])
+            current_index = request.session.get('flashcard_current_index', 0)
+            display_time = request.session.get('flashcard_display_time', 3)
+            difficulty = request.session.get('flashcard_difficulty', 'medium')
+            
+            if current_index < len(numbers):
+                # Показываем следующую карточку
+                next_number = numbers[current_index]
+                abacus_data = get_abacus_representation(next_number, difficulty)
+                
+                # Увеличиваем индекс для следующей карточки
+                request.session['flashcard_current_index'] = current_index + 1
+                
+                return render(request, 'flashcards.html', {
+                    'mode': 2,
+                    'current_number': next_number,
+                    'display_time': display_time,
+                    'total_cards': len(numbers),
+                    'current_card': current_index + 1,
+                    'difficulty': difficulty,
+                    'abacus_data': abacus_data
+                })
+            else:
+                return redirect('flashcards')
+    
+    return redirect('flashcards')

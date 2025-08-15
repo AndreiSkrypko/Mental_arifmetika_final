@@ -178,6 +178,18 @@ button:hover {
     opacity: 0.8; /* Уменьшение непрозрачности */
 }
 
+/* Стили для положительных чисел */
+.positive-number {
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Стили для отрицательных чисел */
+.negative-number {
+    color: #dc3545;
+    font-weight: bold;
+}
+
 </style>
 {% endblock %}
 
@@ -211,7 +223,12 @@ button:hover {
     <a href="{% url 'tricks' mode=1 %}" class="btn back-btn">Назад</a>
     <div class="output-box">
         {% if first and second %}
-        <p class="output-text">{{ first }} × {{ second }} = ?</p>
+        <p class="output-text">
+            {% if first > 0 %}<span class="positive-number">+{{ first }}</span>{% else %}<span class="negative-number">{{ first }}</span>{% endif %}
+            ×
+            {% if second > 0 %}<span class="positive-number">+{{ second }}</span>{% else %}<span class="negative-number">{{ second }}</span>{% endif %}
+            = ?
+        </p>
         {% else %}
         <p class="output-text">Пример не найден</p>
         {% endif %}

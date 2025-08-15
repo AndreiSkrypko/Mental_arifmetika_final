@@ -7,8 +7,10 @@
     /* Основные стили для игры */
     .game-container {
         min-height: 100vh;
-        padding: 40px 20px;
+        padding: 20px;
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        display: flex;
+        flex-direction: column;
     }
 
     .game-card {
@@ -18,15 +20,18 @@
         border: 1px solid rgba(255, 255, 255, 0.2);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
         overflow: hidden;
-        max-width: 600px;
+        max-width: 800px;
         margin: 0 auto;
         animation: fadeInUp 0.8s ease-out;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .game-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 30px;
+        padding: 25px;
         text-align: center;
         position: relative;
         overflow: hidden;
@@ -44,7 +49,7 @@
     }
 
     .game-title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         font-weight: 700;
         margin: 0;
         position: relative;
@@ -53,36 +58,40 @@
     }
 
     .game-subtitle {
-        font-size: 1.1rem;
+        font-size: 1rem;
         opacity: 0.9;
-        margin: 10px 0 0 0;
+        margin: 8px 0 0 0;
         position: relative;
         z-index: 2;
     }
 
     .game-body {
-        padding: 40px;
+        padding: 30px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     /* Стили для полей формы */
     .form-group {
-        margin-bottom: 30px;
+        margin-bottom: 25px;
         position: relative;
     }
 
     .form-label {
         display: block;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
         color: #2d3748;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         text-align: center;
     }
 
     .form-select {
         width: 100%;
-        padding: 16px 20px;
-        font-size: 1.1rem;
+        padding: 14px 18px;
+        font-size: 1rem;
         border: 2px solid rgba(102, 126, 234, 0.2);
         border-radius: 16px;
         background: rgba(255, 255, 255, 0.9);
@@ -91,14 +100,14 @@
         appearance: none;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
         background-repeat: no-repeat;
-        background-position: right 20px center;
-        background-size: 20px;
+        background-position: right 18px center;
+        background-size: 18px;
     }
 
     .form-select:focus {
         outline: none;
         border-color: #667eea;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         transform: translateY(-2px);
     }
 
@@ -107,128 +116,24 @@
         transform: translateY(-1px);
     }
 
-    /* Стили для ползунков */
-    .slider-container {
-        margin-bottom: 30px;
-    }
-
-    .slider-wrapper {
-        position: relative;
-        padding: 20px 0;
-    }
-
-    .slider {
+    /* Стили для кнопки */
+    .start-btn {
         width: 100%;
-        height: 8px;
-        border-radius: 4px;
-        background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e0 100%);
-        outline: none;
-        -webkit-appearance: none;
-        appearance: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        transition: all 0.3s ease;
-        border: 3px solid white;
-    }
-
-    .slider::-webkit-slider-thumb:hover {
-        transform: scale(1.2);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-    }
-
-    .slider::-moz-range-thumb {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        transition: all 0.3s ease;
-        border: 3px solid white;
-    }
-
-    .slider::-moz-range-thumb:hover {
-        transform: scale(1.2);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-    }
-
-    .slider:focus {
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    }
-
-    .slider-value {
-        position: absolute;
-        top: -10px;
-        right: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 1rem;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        min-width: 50px;
-        text-align: center;
-    }
-
-    .slider-labels {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 10px;
-        font-size: 0.9rem;
-        color: #718096;
-    }
-
-    /* Информационные подсказки */
-    .info-hint {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-        border: 1px solid rgba(102, 126, 234, 0.2);
-        border-radius: 12px;
-        padding: 15px;
-        margin-top: 15px;
-        font-size: 0.9rem;
-        color: #4a5568;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .info-hint::before {
-        content: '💡';
-        margin-right: 8px;
+        padding: 16px 24px;
         font-size: 1.1rem;
-    }
-
-    /* Кнопка старта */
-    .start-button {
-        width: 100%;
-        padding: 18px 30px;
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: white;
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
         border-radius: 16px;
+        color: white;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         position: relative;
         overflow: hidden;
     }
 
-    .start-button::before {
+    .start-btn::before {
         content: '';
         position: absolute;
         top: 0;
@@ -239,229 +144,215 @@
         transition: left 0.5s;
     }
 
-    .start-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
-    }
-
-    .start-button:hover::before {
+    .start-btn:hover::before {
         left: 100%;
     }
 
-    .start-button:active {
-        transform: translateY(-1px);
-    }
-
-    /* Таймер отсчета */
-    .countdown-container {
-        text-align: center;
-        padding: 60px 20px;
-    }
-
-    .countdown-number {
-        font-size: 8rem;
-        font-weight: 900;
-        color: #667eea;
-        text-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-        animation: pulse 1s ease-in-out infinite;
-        margin: 0;
-        line-height: 1;
-    }
-
-    .countdown-text {
-        font-size: 2rem;
-        color: #4a5568;
-        margin-top: 20px;
-        font-weight: 600;
-    }
-
-    /* Игровая область */
-    .game-area {
-        text-align: center;
-        padding: 40px 20px;
-        min-height: 300px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .number-display {
-        font-size: 4rem;
-        font-weight: 700;
-        color: #2d3748;
-        margin: 20px 0;
-        padding: 30px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 20px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        min-width: 200px;
-        text-align: center;
-        animation: fadeInDown 0.5s ease-out;
-    }
-
-    /* Форма ответа */
-    .answer-form {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        padding: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        margin-top: 30px;
-    }
-
-    .answer-input {
-        width: 100%;
-        padding: 18px 20px;
-        font-size: 1.5rem;
-        border: 3px solid rgba(102, 126, 234, 0.2);
-        border-radius: 16px;
-        text-align: center;
-        background: rgba(255, 255, 255, 0.9);
-        transition: all 0.3s ease;
-        margin-bottom: 20px;
-    }
-
-    .answer-input:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        transform: translateY(-2px);
-    }
-
-    .submit-answer-btn {
-        width: 100%;
-        padding: 18px 30px;
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: white;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        border-radius: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    }
-
-    .submit-answer-btn:hover {
+    .start-btn:hover {
         transform: translateY(-3px);
         box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
     }
 
-    /* Результат игры */
-    .result-container {
-        text-align: center;
-        padding: 40px 20px;
+    .start-btn:active {
+        transform: translateY(-1px);
     }
 
-    .result-message {
-        font-size: 1.5rem;
-        margin: 20px 0;
+    /* Стили для показа чисел */
+    .number-display {
+        text-align: center;
         padding: 20px;
-        border-radius: 16px;
-        font-weight: 600;
-    }
-
-    .result-correct {
-        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
-        border: 2px solid rgba(40, 167, 69, 0.3);
-        color: #28a745;
-    }
-
-    .result-incorrect {
-        background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(200, 35, 51, 0.1));
-        border: 2px solid rgba(220, 53, 69, 0.3);
-        color: #dc3545;
-    }
-
-    .restart-button {
-        display: inline-block;
-        padding: 16px 32px;
-        font-size: 1.2rem;
-        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
         color: white;
-        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        border: none;
-        border-radius: 16px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
-        text-decoration: none;
-        margin-top: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
-    .restart-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(108, 117, 125, 0.4);
-        color: white;
-        text-decoration: none;
+    .number-info {
+        margin-bottom: 20px;
     }
 
-    /* Стили для показа чисел по одному */
-    .current-number {
-        font-size: 6rem;
-        color: #667eea;
-        text-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-        animation: pulse 1s ease-in-out infinite;
-    }
-
-    .progress-info {
-        margin-top: 30px;
-        text-align: center;
-    }
-
-    .progress-text {
-        font-size: 1.2rem;
-        color: #4a5568;
+    .number-counter {
+        display: block;
+        font-size: 1.1em;
         margin-bottom: 15px;
-        font-weight: 600;
+        opacity: 0.9;
     }
 
     .progress-bar {
         width: 100%;
         height: 8px;
-        background: rgba(102, 126, 234, 0.2);
+        background: rgba(255,255,255,0.3);
         border-radius: 4px;
         overflow: hidden;
-        margin: 0 auto;
-        max-width: 300px;
+        margin-bottom: 20px;
     }
 
     .progress-fill {
         height: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 4px;
+        background: linear-gradient(90deg, #2ecc71, #27ae60);
         transition: width 0.3s ease;
     }
 
-    /* Кнопки действий в результатах */
-    .result-actions {
+    .current-number {
+        font-size: 4rem;
+        font-weight: bold;
+        margin: 30px 0;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+
+    .positive-number {
+        color: #2ecc71;
+    }
+
+    .negative-number {
+        color: #e74c3c;
+    }
+
+    /* Стили для таймера */
+    .timer-display {
+        margin: 20px 0;
+        font-size: 1.2em;
+        opacity: 0.9;
+        text-align: center;
+    }
+    
+    .countdown-timer {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #FFD700;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        display: inline-block;
+        min-width: 80px;
+    }
+
+    /* Стили для формы ответа */
+    .answer-form {
+        text-align: center;
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        flex: 1;
         display: flex;
-        gap: 20px;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .answer-input {
+        width: 100%;
+        max-width: 300px;
+        padding: 16px 20px;
+        font-size: 1.2rem;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 12px;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        text-align: center;
+        margin: 20px auto;
+        transition: all 0.3s ease;
+    }
+
+    .answer-input:focus {
+        outline: none;
+        border-color: #FFD700;
+        background: rgba(255,255,255,0.2);
+        transform: scale(1.05);
+    }
+
+    .answer-input::placeholder {
+        color: rgba(255,255,255,0.6);
+    }
+
+    /* Стили для результатов */
+    .game-results {
+        text-align: center;
+        padding: 20px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .result-message {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+    }
+
+    .result-message.correct {
+        color: #2ecc71;
+        border: 2px solid rgba(46, 204, 113, 0.3);
+    }
+
+    .result-message.incorrect {
+        color: #e74c3c;
+        border: 2px solid rgba(231, 76, 60, 0.3);
+    }
+
+    .result-details {
+        margin: 20px 0;
+        padding: 15px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+    }
+
+    .result-details p {
+        margin: 10px 0;
+        font-size: 1.1em;
+    }
+
+    /* Кнопки управления */
+    .game-controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 15px;
         justify-content: center;
         flex-wrap: wrap;
-        margin-top: 30px;
     }
-
-    .main-menu-button {
-        display: inline-block;
-        padding: 16px 32px;
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: white;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    
+    .btn {
+        padding: 12px 24px;
         border: none;
-        border-radius: 16px;
+        border-radius: 10px;
+        font-size: 1em;
+        font-weight: bold;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
         text-decoration: none;
+        display: inline-block;
     }
-
-    .main-menu-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        text-decoration: none;
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        color: white;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
     /* Анимации */
@@ -473,26 +364,6 @@
         to {
             opacity: 1;
             transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeInDown {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes pulse {
-        0%, 100% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.1);
         }
     }
 
@@ -508,24 +379,39 @@
     /* Адаптивность */
     @media (max-width: 768px) {
         .game-container {
-            padding: 20px 10px;
+            padding: 15px;
         }
         
-        .game-body {
-            padding: 30px 20px;
+        .game-header {
+            padding: 20px;
         }
         
         .game-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
         }
         
-        .countdown-number {
-            font-size: 6rem;
+        .game-body {
+            padding: 20px;
         }
         
-        .number-display {
+        .current-number {
             font-size: 3rem;
-            min-width: 150px;
+            padding: 15px;
+        }
+        
+        .countdown-timer {
+            font-size: 2.5rem;
+            padding: 12px;
+        }
+        
+        .game-controls {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            max-width: 250px;
         }
     }
 </style>
@@ -533,280 +419,162 @@
 
 {% block content %}
 <div class="game-container">
-    {% if mode == 1 %}
-    <!-- Форма выбора настроек -->
     <div class="game-card">
         <div class="game-header">
-            <h1 class="game-title">🎯 Игра "Просто"</h1>
-            <p class="game-subtitle">Тренажёр для сложения и вычитания</p>
+            <h1 class="game-title">Игра "Просто"</h1>
+            <p class="game-subtitle">Складывайте числа в уме! Тренируйте ментальную арифметику.</p>
         </div>
         
         <div class="game-body">
-            <form method="post" action="{% url 'simply' mode=1 %}">
+            {% if mode == 1 %}
+            <!-- Настройка игры -->
+            <form method="POST">
                 {% csrf_token %}
+                <div class="form-group">
+                    <label for="difficulty" class="form-label">Сложность:</label>
+                    <select name="difficulty" id="difficulty" class="form-select">
+                        <option value="1">Легко (1-10)</option>
+                        <option value="2">Средне (1-50)</option>
+                        <option value="3">Сложно (1-100)</option>
+                        <option value="4">Очень сложно (10-200)</option>
+                        <option value="5">Эксперт (50-500)</option>
+                    </select>
+                </div>
                 
                 <div class="form-group">
-                    <label for="difficulty" class="form-label">🎚️ Выберите сложность</label>
-                    <select id="difficulty" name="difficulty" class="form-select" onchange="updateDifficultyInfo()">
-                        <option value="1">Легко (числа от 1 до 10)</option>
-                        <option value="2">Средне (числа от 1 до 50)</option>
-                        <option value="3">Сложно (числа от 1 до 100)</option>
-                        <option value="4">Очень сложно (числа от 10 до 200)</option>
-                        <option value="5">Эксперт (числа от 50 до 500)</option>
+                    <label for="range" class="form-label">Диапазон чисел:</label>
+                    <select name="range" id="range" class="form-select">
+                        {% for key, value in ranges.items %}
+                            <option value="{{ key }}">{{ value.0 }}-{{ value.1 }}</option>
+                        {% endfor %}
                     </select>
-                    <div id="difficultyInfo" class="info-hint">Легко: числа от 1 до 10</div>
                 </div>
-
+                
                 <div class="form-group">
-                    <label for="max_digit" class="form-label">🔢 Максимальная цифра в числе</label>
-                    <div class="slider-container">
-                        <div class="slider-wrapper">
-                            <input type="range" id="max_digit" name="max_digit" min="1" max="9" step="1" value="9" class="slider" oninput="updateMaxDigitValue(this.value)">
-                            <span id="maxDigitValue" class="slider-value">9</span>
-                        </div>
-                        <div class="slider-labels">
-                            <span>1</span>
-                            <span>9</span>
-                        </div>
-                    </div>
-                    <div class="info-hint">Ограничивает состав чисел (например, если 2, то числа могут быть 21, 12, 22, 10)</div>
+                    <label for="examples" class="form-label">Количество примеров:</label>
+                    <select name="examples" id="examples" class="form-select">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
                 </div>
-
+                
                 <div class="form-group">
-                    <label for="examples" class="form-label">📊 Количество примеров</label>
-                    <div class="slider-container">
-                        <div class="slider-wrapper">
-                            <input type="range" id="examples" name="examples" min="5" max="20" step="1" value="10" class="slider" oninput="updateSliderValue(this.value)">
-                            <span id="sliderValue" class="slider-value">10</span>
-                        </div>
-                        <div class="slider-labels">
-                            <span>5</span>
-                            <span>20</span>
-                        </div>
-                    </div>
+                    <label for="speed" class="form-label">Скорость показа:</label>
+                    <select name="speed" id="speed" class="form-select">
+                        <option value="0.5">Очень быстро (0.5 сек)</option>
+                        <option value="1" selected>Быстро (1 сек)</option>
+                        <option value="2">Средне (2 сек)</option>
+                        <option value="3">Медленно (3 сек)</option>
+                    </select>
                 </div>
-
+                
                 <div class="form-group">
-                    <label for="speed" class="form-label">⚡ Скорость показа</label>
-                    <div class="slider-container">
-                        <div class="slider-wrapper">
-                            <input type="range" id="speed" name="speed" min="0.1" max="10" step="0.1" value="1" class="slider" oninput="updateSpeedValue(this.value)">
-                            <span id="speedValue" class="slider-value">1.0</span>
-                        </div>
-                        <div class="slider-labels">
-                            <span>0.1с</span>
-                            <span>10с</span>
-                        </div>
-                    </div>
-                    <div class="info-hint">Пауза между показом чисел</div>
+                    <label for="max_digit" class="form-label">Максимальная цифра в числе:</label>
+                    <select name="max_digit" id="max_digit" class="form-select">
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                        <option value="9" selected>9</option>
+                    </select>
                 </div>
-
-                <button type="submit" class="start-button">
-                    🚀 Начать игру
-                </button>
+                
+                <button type="submit" class="start-btn">Начать игру</button>
             </form>
-        </div>
-    </div>
 
-    {% elif mode == 2 %}
-    <!-- Таймер отсчёта перед началом игры -->
-    <div class="game-card">
-        <div class="game-header">
-            <h1 class="game-title">🎯 Игра "Просто"</h1>
-            <p class="game-subtitle">Приготовьтесь!</p>
-        </div>
-        
-        <div class="countdown-container">
-            <div id="countdownTimer" class="countdown-number">3</div>
-            <div class="countdown-text">Начинаем через...</div>
-        </div>
-    </div>
-
-    {% elif mode == 5 %}
-    <!-- Показ чисел по одному -->
-    <div class="game-card">
-        <div class="game-header">
-            <h1 class="game-title">🎯 Игра "Просто"</h1>
-            <p class="game-subtitle">Запомните число!</p>
-        </div>
-        
-                 <div class="game-area">
-             <div class="number-display current-number">
-                 {% if current_number %}
-                     {{ current_number }}
-                 {% else %}
-                     ОШИБКА: число не передано!
-                 {% endif %}
-             </div>
-             <div class="progress-info">
-                 <div class="progress-text">Число {{ current_index }} из {{ total_count }}</div>
-                 <div class="progress-bar">
-                     <div class="progress-fill" id="progressFill"></div>
-                 </div>
-             </div>
-         </div>
-        <div id="progressData" data-current-index="{{ current_index|default:0 }}" data-total-count="{{ total_count|default:1 }}"></div>
-    </div>
-
-    <div id="speedData" data-speed="{{ speed }}"></div>
-    <form id="nextNumberForm" method="post" action="{% url 'simply' mode=5 %}" style="display: none;">
-        {% csrf_token %}
-        <input type="hidden" name="next_number" value="1">
-    </form>
-    <script>
-        // Автоматический переход к следующему числу через заданную паузу
-        var speedElement = document.getElementById('speedData');
-        var speedValue = parseInt(speedElement.getAttribute('data-speed'));
-        setTimeout(function() {
-            document.getElementById('nextNumberForm').submit();
-        }, speedValue * 1000);
-    </script>
-
-
-
-    {% elif mode == 6 %}
-    <!-- Ввод ответа -->
-    <div class="game-card">
-        <div class="game-header">
-            <h1 class="game-title">🎯 Игра "Просто"</h1>
-            <p class="game-subtitle">Введите ответ!</p>
-        </div>
-        
-        <div class="answer-form">
-            <form method="post" action="{% url 'simply' mode=4 %}">
-                {% csrf_token %}
-                <label for="userAnswer" class="form-label">🧮 Введите сумму всех чисел:</label>
-                <input type="number" id="userAnswer" name="user_answer" class="answer-input" required placeholder="Введите ответ..." autofocus>
-                <input type="hidden" name="correct_answer" value="{{ total }}">
-                <button type="submit" class="submit-answer-btn">
-                    ✅ Отправить ответ
-                </button>
-            </form>
-        </div>
-    </div>
-
-    {% elif mode == 4 %}
-    <!-- Результат игры -->
-    <div class="game-card">
-        <div class="game-header">
-            <h1 class="game-title">🎯 Игра "Просто"</h1>
-            <p class="game-subtitle">Результат</p>
-        </div>
-        
-        <div class="result-container">
-            <div class="result-message">
-                <strong>Ваш ответ:</strong> {{ user_answer }}
-            </div>
-            <div class="result-message">
-                <strong>Правильный ответ:</strong> {{ correct_answer }}
-            </div>
-            
-            {% if is_correct %}
-                <div class="result-message result-correct">
-                    🎉 Поздравляем! Вы ответили правильно!
+            {% elif mode == 2 %}
+            <!-- Таймер отсчета -->
+            <div class="number-display">
+                <div class="timer-display">
+                    <div>Игра начнется через:</div>
+                    <div class="countdown-timer" id="countdown">3</div>
                 </div>
-            {% else %}
-                <div class="result-message result-incorrect">
-                    ❌ Неправильно. Попробуйте ещё раз!
-                </div>
-            {% endif %}
-            
-            <div class="result-actions">
-                <a href="{% url 'simply' mode=1 %}" class="restart-button">
-                    🔄 Играть ещё раз
-                </a>
-                <a href="{% url 'index' %}" class="main-menu-button">
-                    🏠 Главное меню
-                </a>
             </div>
-        </div>
-    </div>
-    {% endif %}
-</div>
 
-<script>
-    function updateSliderValue(value) {
-        const element = document.getElementById("sliderValue");
-        if (element) {
-            element.textContent = value;
-        }
-    }
-
-    function updateSpeedValue(value) {
-        const element = document.getElementById("speedValue");
-        if (element) {
-            element.textContent = parseFloat(value).toFixed(1);
-        }
-    }
-
-    function updateMaxDigitValue(value) {
-        const element = document.getElementById("maxDigitValue");
-        if (element) {
-            element.textContent = value;
-        }
-    }
-
-    function updateDifficultyInfo() {
-        const difficultyElement = document.getElementById("difficulty");
-        const infoElement = document.getElementById("difficultyInfo");
-        
-        // Проверяем, что элементы существуют
-        if (!difficultyElement || !infoElement) {
-            return;
-        }
-        
-        const difficulty = difficultyElement.value;
-        
-        const difficultyInfo = {
-            "1": "Легко: числа от 1 до 10",
-            "2": "Средне: числа от 1 до 50", 
-            "3": "Сложно: числа от 1 до 100",
-            "4": "Очень сложно: числа от 10 до 200",
-            "5": "Эксперт: числа от 50 до 500"
-        };
-        
-        infoElement.textContent = difficultyInfo[difficulty] || "";
-    }
-
-    // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        // Проверяем, есть ли элементы формы на странице
-        if (document.getElementById('difficulty')) {
-            updateDifficultyInfo();
-        }
-    });
-
-    // Таймер отсчета для режима 2
-    if (document.getElementById('countdownTimer')) {
-        let countdown = 3;
-        const countdownElement = document.getElementById('countdownTimer');
-
-        const countdownInterval = setInterval(function() {
-            countdownElement.textContent = countdown;
-            countdown--;
-            if (countdown < 0) {
-                clearInterval(countdownInterval);
-                countdownElement.textContent = "Старт!";
-                countdownElement.style.color = "#28a745";
-                setTimeout(function() {
-                    window.location.href = "{% url 'simply' mode=3 %}";
+            <script>
+                let timeLeft = 3;
+                const countdownElement = document.getElementById('countdown');
+                
+                const countdown = setInterval(() => {
+                    timeLeft--;
+                    countdownElement.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        window.location.href = "{% url 'simply' mode=3 %}";
+                    }
                 }, 1000);
-            }
-        }, 1000);
-    }
+            </script>
 
-    // Обновление прогресс-бара для режима 5
-    if (document.getElementById('progressFill')) {
-        const progressData = document.getElementById('progressData');
-        if (progressData) {
-            const currentIndex = parseInt(progressData.getAttribute('data-current-index') || '0');
-            const totalCount = parseInt(progressData.getAttribute('data-total-count') || '1');
-            // Вычисляем процент прогресса (текущий индекс / общее количество * 100)
-            // currentIndex уже увеличен на 1 в шаблоне, поэтому вычитаем 1 для правильного расчета
-            const actualIndex = Math.max(0, currentIndex - 1);
-            const progressPercent = Math.min((actualIndex / totalCount) * 100, 100);
-            document.getElementById('progressFill').style.width = progressPercent + '%';
-        }
-    }
-</script>
+            {% elif mode == 5 %}
+            <!-- Показ чисел -->
+            <div class="number-display">
+                <div class="number-info">
+                    <span class="number-counter">Число {{ current_index }} из {{ total_count }}</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {% widthratio current_index total_count 100 %}%"></div>
+                    </div>
+                </div>
+                
+                <div class="current-number {% if current_number > 0 %}positive-number{% else %}negative-number{% endif %}">
+                    {% if current_number > 0 %}+{{ current_number }}{% else %}{{ current_number }}{% endif %}
+                </div>
+                
+                <div class="game-controls">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Следующее число</button>
+                    </form>
+                </div>
+            </div>
+
+            {% elif mode == 6 %}
+            <!-- Ввод ответа -->
+            <div class="answer-form">
+                <h2>Введите сумму всех чисел</h2>
+                <p>Вспомните все числа, которые вы видели, и введите их сумму:</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="number" 
+                           name="user_answer" 
+                           class="answer-input" 
+                           placeholder="Введите сумму"
+                           required>
+                    
+                    <div class="game-controls">
+                        <button type="submit" class="btn btn-primary">Проверить ответ</button>
+                    </div>
+                </form>
+            </div>
+
+            {% elif mode == 4 %}
+            <!-- Результаты -->
+            <div class="game-results">
+                <h2>Результат проверки</h2>
+                
+                {% if is_correct %}
+                    <div class="result-message correct">
+                        ✓ Верно! Молодец!
+                    </div>
+                {% else %}
+                    <div class="result-message incorrect">
+                        ✗ Неверно! Попробуйте снова.
+                    </div>
+                {% endif %}
+                
+                <div class="result-details">
+                    <p><strong>Ваш ответ:</strong> {{ user_answer }}</p>
+                    <p><strong>Правильный ответ:</strong> {{ correct_answer }}</p>
+                </div>
+                
+                <div class="game-controls">
+                    <a href="{% url 'simply' mode=1 %}" class="btn btn-primary">Играть снова</a>
+                    <a href="{% url 'index' %}" class="btn btn-secondary">На главную</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

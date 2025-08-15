@@ -89,6 +89,8 @@ urlpatterns = [
 
     path('simply/<int:mode>/', views.simply, name='simply'),
 
+    path('flashcards/', views.flashcards, name='flashcards'),
+
     # Старые маршруты для обратной совместимости
     path('delete_student/<int:student_id>/', views.students_list, {'mode': 4}, name='delete_student'),
     # Новый URL для удаления
