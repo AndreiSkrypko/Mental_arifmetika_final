@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
+    
+    <!-- Мета-теги для фавиконки -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-TileImage" content="/static/favicon.png">
+    
+    <!-- Фавиконка -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+    <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
 
     <!-- Подключение Bootstrap для стилизации -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,7 +27,6 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 
     <style>
@@ -817,72 +828,214 @@
             width: 100%;
             box-sizing: border-box;
         }
+        
+        /* Стили для сообщения об авторизации */
+        .auth-message {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .auth-message p {
+            margin: 0 0 15px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+                 .auth-buttons .btn {
+             min-width: auto;
+             padding: 8px 16px;
+             font-size: 0.85em;
+         }
+         
+         /* Стили для доступных игр */
+         .dropdown-content a.available-game {
+             color: #059669;
+             background: rgba(5, 150, 105, 0.05);
+             border-left: 3px solid #059669;
+         }
+         
+         .dropdown-content a.available-game:hover {
+             background: rgba(5, 150, 105, 0.1);
+             color: #047857;
+         }
+         
+         .dropdown-content a.available-game i {
+             color: #059669;
+         }
+         
+         /* Стили для недоступных игр */
+         .dropdown-content a:not(.available-game) {
+             color: #6b7280;
+             opacity: 0.7;
+         }
+         
+         .dropdown-content a:not(.available-game):hover {
+             background: rgba(107, 114, 128, 0.1);
+             color: #4b5563;
+         }
+         
+         .dropdown-content a:not(.available-game) i {
+             color: #6b7280;
+         }
     </style>
     {% block mycss %}{% endblock %}
     
-    <script>
-        // Отладочный скрипт для выпадающего меню
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded');
-            
-            const dropdown = document.querySelector('.dropdown');
-            const dropdownContent = document.querySelector('.dropdown-content');
-            const dropdownSub = document.querySelector('.dropdown-sub');
-            const dropdownSubmenu = document.querySelector('.dropdown-submenu');
-            
-            console.log('Dropdown elements:', {
-                dropdown: !!dropdown,
-                dropdownContent: !!dropdownContent,
-                dropdownSub: !!dropdownSub,
-                dropdownSubmenu: !!dropdownSubmenu
-            });
-            
-            if (dropdown) {
-                console.log('Dropdown found, adding event listeners');
-                
-                // Добавляем обработчики событий
-                dropdown.addEventListener('mouseenter', function() {
-                    console.log('Mouse entered dropdown');
-                    if (dropdownContent) {
-                        dropdownContent.style.opacity = '1';
-                        dropdownContent.style.visibility = 'visible';
-                        dropdownContent.style.transform = 'translateY(0)';
-                    }
-                });
-                
-                dropdown.addEventListener('mouseleave', function() {
-                    console.log('Mouse left dropdown');
-                    if (dropdownContent) {
-                        dropdownContent.style.opacity = '0';
-                        dropdownContent.style.visibility = 'hidden';
-                        dropdownContent.style.transform = 'translateY(-10px)';
-                    }
-                });
-            }
-            
-            if (dropdownSub) {
-                console.log('Dropdown sub found, adding event listeners');
-                
-                dropdownSub.addEventListener('mouseenter', function() {
-                    console.log('Mouse entered submenu');
-                    if (dropdownSubmenu) {
-                        dropdownSubmenu.style.opacity = '1';
-                        dropdownSubmenu.style.visibility = 'visible';
-                        dropdownSubmenu.style.transform = 'translateX(0)';
-                    }
-                });
-                
-                dropdownSub.addEventListener('mouseleave', function() {
-                    console.log('Mouse left submenu');
-                    if (dropdownSubmenu) {
-                        dropdownSubmenu.style.opacity = '0';
-                        dropdownSubmenu.style.visibility = 'hidden';
-                        dropdownSubmenu.style.transform = 'translateX(-10px)';
-                    }
-                });
-            }
-        });
-    </script>
+         <script>
+         // Скрипт для выпадающего меню и определения доступных игр
+         document.addEventListener('DOMContentLoaded', function() {
+             console.log('Page loaded');
+             
+             const dropdown = document.querySelector('.dropdown');
+             const dropdownContent = document.querySelector('.dropdown-content');
+             const dropdownSub = document.querySelector('.dropdown-sub');
+             const dropdownSubmenu = document.querySelector('.dropdown-submenu');
+             
+                           // Определяем доступные игры
+              function markAvailableGames() {
+                  const gameLinks = dropdownContent.querySelectorAll('a[href]');
+                  
+                  // Получаем список доступных игр из Django контекста
+                  const availableGames = {{ available_games_list|safe }};
+                  
+                  gameLinks.forEach(link => {
+                      const href = link.getAttribute('href');
+                      
+                      // Игра "Просто" всегда доступна
+                      if (href === '/simply/1/') {
+                          link.classList.add('available-game');
+                          return;
+                      }
+                      
+                      // Проверяем, доступна ли игра
+                      let isAvailable = false;
+                      
+                      // Проверяем по URL
+                      if (href === '/flashcards/') {
+                          isAvailable = availableGames.includes('flashcards');
+                      } else if (href === '/multiplication_choose/1/') {
+                          isAvailable = availableGames.includes('multiplication_choose');
+                      } else if (href === '/multiplication_to_20/1/') {
+                          isAvailable = availableGames.includes('multiplication_to_20');
+                      } else if (href === '/square/1/') {
+                          isAvailable = availableGames.includes('square');
+                      } else if (href === '/tricks/1/') {
+                          isAvailable = availableGames.includes('tricks');
+                      } else if (href === '/multiplication_base/1/') {
+                          isAvailable = availableGames.includes('multiplication_base');
+                      }
+                      
+                      if (isAvailable) {
+                          link.classList.add('available-game');
+                      } else {
+                          link.classList.remove('available-game');
+                      }
+                  });
+              }
+             
+             // Добавляем классы для определения типа пользователя
+             {% if user.is_authenticated and user.teacher_profile and user.teacher_profile.status == 'approved' %}
+                 document.body.classList.add('teacher-authenticated');
+             {% elif request.session.student_id %}
+                 document.body.classList.add('student-authenticated');
+             {% endif %}
+             
+             console.log('Dropdown elements:', {
+                 dropdown: !!dropdown,
+                 dropdownContent: !!dropdownContent,
+                 dropdownSub: !!dropdownSub,
+                 dropdownSubmenu: !!dropdownSubmenu
+             });
+             
+             if (dropdown) {
+                 console.log('Dropdown found, adding event listeners');
+                 
+                 // Добавляем обработчики событий
+                 dropdown.addEventListener('mouseenter', function() {
+                     console.log('Mouse entered dropdown');
+                     if (dropdownContent) {
+                         dropdownContent.style.opacity = '1';
+                         dropdownContent.style.visibility = 'visible';
+                         dropdownContent.style.transform = 'translateY(0)';
+                         
+                         // Отмечаем доступные игры при открытии меню
+                         markAvailableGames();
+                     }
+                 });
+                 
+                 dropdown.addEventListener('mouseleave', function() {
+                     console.log('Mouse left dropdown');
+                     if (dropdownContent) {
+                         dropdownContent.style.opacity = '0';
+                         dropdownContent.style.visibility = 'hidden';
+                         dropdownContent.style.transform = 'translateY(-10px)';
+                     }
+                 });
+             }
+             
+             if (dropdownSub) {
+                 console.log('Dropdown sub found, adding event listeners');
+                 
+                 dropdownSub.addEventListener('mouseenter', function() {
+                     console.log('Mouse entered submenu');
+                     if (dropdownSubmenu) {
+                         dropdownSubmenu.style.opacity = '1';
+                         dropdownSubmenu.style.visibility = 'visible';
+                         dropdownSubmenu.style.transform = 'translateX(0)';
+                     }
+                 });
+                 
+                 dropdownSub.addEventListener('mouseleave', function() {
+                     console.log('Mouse left submenu');
+                     if (dropdownSubmenu) {
+                         dropdownSubmenu.style.opacity = '0';
+                         dropdownSubmenu.style.visibility = 'hidden';
+                         dropdownSubmenu.style.transform = 'translateX(-10px)';
+                     }
+                 });
+             }
+             
+                           // Отмечаем доступные игры при загрузке страницы
+              markAvailableGames();
+              
+              // Также отмечаем доступные игры в подменю
+              if (dropdownSubmenu) {
+                  const submenuLinks = dropdownSubmenu.querySelectorAll('a[href]');
+                  const availableGames = {{ available_games_list|safe }};
+                  
+                  submenuLinks.forEach(link => {
+                      const href = link.getAttribute('href');
+                      
+                      let isAvailable = false;
+                      
+                      if (href === '/multiplication_choose/1/') {
+                          isAvailable = availableGames.includes('multiplication_choose');
+                      } else if (href === '/multiplication_to_20/1/') {
+                          isAvailable = availableGames.includes('multiplication_to_20');
+                      } else if (href === '/square/1/') {
+                          isAvailable = availableGames.includes('square');
+                      } else if (href === '/tricks/1/') {
+                          isAvailable = availableGames.includes('tricks');
+                      } else if (href === '/multiplication_base/1/') {
+                          isAvailable = availableGames.includes('multiplication_base');
+                      }
+                      
+                      if (isAvailable) {
+                          link.classList.add('available-game');
+                      } else {
+                          link.classList.remove('available-game');
+                      }
+                  });
+              }
+         });
+     </script>
 </head>
 <body>
 
@@ -909,47 +1062,57 @@
                     Главная
                 </a>
                 
-                {% if user.is_authenticated %}
-                    {% if user.teacher_profile and user.teacher_profile.status == 'approved' %}
-                        <!-- Навигация для авторизованных учителей -->
-                        <a href="{% url 'teacher_dashboard' %}" class="nav-button">
-                            <i class="fas fa-chalkboard-teacher"></i>
-                            Панель учителя
-                        </a>
-                        <a href="{% url 'class_list' %}" class="nav-button">
-                            <i class="fas fa-users"></i>
-                            Мои классы
-                        </a>
-                        <a href="{% url 'students_list' %}" class="nav-button">
-                            <i class="fas fa-user-graduate"></i>
-                            Мои ученики
-                        </a>
-                        <a href="{% url 'teacher_logout' %}" class="nav-button logout">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Выйти
-                        </a>
-                    {% else %}
-                        <!-- Навигация для учителей с неутвержденным статусом -->
-                        <a href="{% url 'teacher_logout' %}" class="nav-button logout">
-                            <i class="fas fa-sign-out-alt"></i>
-                            Выйти
-                        </a>
-                    {% endif %}
-                {% else %}
-                    <!-- Навигация для неавторизованных пользователей -->
-                    <a href="{% url 'teacher_register' %}" class="nav-button primary">
-                        <i class="fas fa-user-plus"></i>
-                        Регистрация учителя
-                    </a>
-                    <a href="{% url 'teacher_login' %}" class="nav-button">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Вход для учителя
-                    </a>
-                    <a href="{% url 'student_login' %}" class="nav-button">
-                        <i class="fas fa-graduation-cap"></i>
-                        Вход для ученика
-                    </a>
-                {% endif %}
+                                 {% if user.is_authenticated %}
+                     {% if user.teacher_profile and user.teacher_profile.status == 'approved' %}
+                         <!-- Навигация для авторизованных учителей -->
+                         <a href="{% url 'teacher_dashboard' %}" class="nav-button">
+                             <i class="fas fa-chalkboard-teacher"></i>
+                             Панель учителя
+                         </a>
+                         <a href="{% url 'class_list' %}" class="nav-button">
+                             <i class="fas fa-users"></i>
+                             Мои классы
+                         </a>
+                         <a href="{% url 'students_list' %}" class="nav-button">
+                             <i class="fas fa-user-graduate"></i>
+                             Мои ученики
+                         </a>
+                         <a href="{% url 'teacher_logout' %}" class="nav-button logout">
+                             <i class="fas fa-sign-out-alt"></i>
+                             Выйти
+                         </a>
+                     {% else %}
+                         <!-- Навигация для учителей с неутвержденным статусом -->
+                         <a href="{% url 'teacher_logout' %}" class="nav-button logout">
+                             <i class="fas fa-sign-out-alt"></i>
+                             Выйти
+                         </a>
+                     {% endif %}
+                 {% elif request.session.student_id %}
+                     <!-- Навигация для авторизованных учеников -->
+                     <a href="{% url 'student_dashboard' %}" class="nav-button">
+                         <i class="fas fa-graduation-cap"></i>
+                         Панель ученика
+                     </a>
+                     <a href="{% url 'student_logout' %}" class="nav-button logout">
+                         <i class="fas fa-sign-out-alt"></i>
+                         Выйти
+                     </a>
+                 {% else %}
+                     <!-- Навигация для неавторизованных пользователей -->
+                     <a href="{% url 'teacher_register' %}" class="nav-button primary">
+                         <i class="fas fa-user-plus"></i>
+                         Регистрация учителя
+                     </a>
+                     <a href="{% url 'teacher_login' %}" class="nav-button">
+                         <i class="fas fa-sign-in-alt"></i>
+                         Вход для учителя
+                     </a>
+                     <a href="{% url 'student_login' %}" class="nav-button">
+                         <i class="fas fa-graduation-cap"></i>
+                         Вход для ученика
+                     </a>
+                 {% endif %}
                 
                 <!-- Главное меню "Игры" -->
                 <div class="dropdown">
@@ -990,66 +1153,44 @@
                             </div>
                         </div>
                         <!-- Остальные ссылки -->
+                        <!-- Игра "Просто" - доступна всем -->
                         <a href="/simply/1/">
                             <i class="fas fa-plus"></i>
                             Просто
                         </a>
+                        
+                        <!-- Все игры видны, но требуют авторизации (кроме "Просто") -->
                         <a href="main_multiplication">
                             <i class="fas fa-table"></i>
                             Таблица умножения
                         </a>
-                        <a href="brothers">
-                            <i class="fas fa-handshake"></i>
-                            Братья
+                        <a href="/multiplication_choose/1/">
+                            <i class="fas fa-calculator"></i>
+                            Умножение
                         </a>
-                        <a href="friends">
-                            <i class="fas fa-heart"></i>
-                            Друзья
+                        <a href="/square/1/">
+                            <i class="fas fa-square"></i>
+                            Квадраты
                         </a>
-                        <a href="friend_plus_brother">
-                            <i class="fas fa-users"></i>
-                            Друг+Брат
+                        <a href="/tricks/1/">
+                            <i class="fas fa-magic"></i>
+                            Трюки
                         </a>
                         <a href="/flashcards/">
                             <i class="fas fa-credit-card"></i>
                             Флэшкарты
                         </a>
-                        <a href="anzan">
-                            <i class="fas fa-eye"></i>
-                            Анзан
-                        </a>
-                        <a href="division">
-                            <i class="fas fa-divide"></i>
-                            Деление
-                        </a>
-                        <a href="subtraction">
-                            <i class="fas fa-minus"></i>
-                            Вычитание
-                        </a>
-                        <a href="addition">
-                            <i class="fas fa-plus"></i>
-                            Сложение
-                        </a>
-                        <a href="mental_math">
-                            <i class="fas fa-brain"></i>
-                            Ментальный счет
-                        </a>
-                        <a href="speed_test">
-                            <i class="fas fa-stopwatch"></i>
-                            Тест на скорость
-                        </a>
-                        <a href="memory_game">
-                            <i class="fas fa-memory"></i>
-                            Игра памяти
-                        </a>
-                        <a href="number_patterns">
-                            <i class="fas fa-sort-numeric-down"></i>
-                            Числовые паттерны
-                        </a>
-                        <a href="logic_puzzles">
-                            <i class="fas fa-puzzle-piece"></i>
-                            Логические головоломки
-                        </a>
+                        
+                        <!-- Для неавторизованных пользователей -->
+                        {% if not user.is_authenticated and not request.session.student_id %}
+                            <div class="auth-message">
+                                <p>Для доступа к играм пожалуйста авторизуйтесь</p>
+                                <div class="auth-buttons">
+                                    <a href="{% url 'teacher_login' %}" class="btn btn-primary">Войти как учитель</a>
+                                    <a href="{% url 'student_login' %}" class="btn btn-secondary">Войти как ученик</a>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

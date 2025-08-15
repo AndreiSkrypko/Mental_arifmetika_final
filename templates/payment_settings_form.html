@@ -18,13 +18,13 @@
                         {% csrf_token %}
                         
                         <div class="mb-3">
-                            <label for="{{ form.price_per_lesson.id_for_label }}" class="form-label">
-                                <strong>{{ form.price_per_lesson.label }}</strong>
+                            <label for="{{ form.payment_day.id_for_label }}" class="form-label">
+                                <strong>{{ form.payment_day.label }}</strong>
                             </label>
-                            {{ form.price_per_lesson }}
-                            {% if form.price_per_lesson.errors %}
+                            {{ form.payment_day }}
+                            {% if form.payment_day.errors %}
                                 <div class="text-danger">
-                                    {% for error in form.price_per_lesson.errors %}
+                                    {% for error in form.payment_day.errors %}
                                         <small>{{ error }}</small>
                                     {% endfor %}
                                 </div>
@@ -35,13 +35,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="{{ form.price_per_month.id_for_label }}" class="form-label">
-                                <strong>{{ form.price_per_month.label }}</strong>
+                            <label for="{{ form.monthly_fee.id_for_label }}" class="form-label">
+                                <strong>{{ form.monthly_fee.label }}</strong>
                             </label>
-                            {{ form.price_per_month }}
-                            {% if form.price_per_month.errors %}
+                            {{ form.monthly_fee }}
+                            {% if form.monthly_fee.errors %}
                                 <div class="text-danger">
-                                    {% for error in form.price_per_month.errors %}
+                                    {% for error in form.monthly_fee.errors %}
                                         <small>{{ error }}</small>
                                     {% endfor %}
                                 </div>
@@ -135,8 +135,8 @@
 // Обновление примеров расчета в реальном времени
 document.addEventListener('DOMContentLoaded', function() {
     function updateExamples() {
-        const lessonPrice = parseFloat(document.getElementById('{{ form.price_per_lesson.id_for_label }}').value) || 0;
-        const monthlyPrice = parseFloat(document.getElementById('{{ form.price_per_month.id_for_label }}').value) || 0;
+        const lessonPrice = parseFloat(document.getElementById('{{ form.payment_day.id_for_label }}').value) || 0;
+        const monthlyPrice = parseFloat(document.getElementById('{{ form.monthly_fee.id_for_label }}').value) || 0;
         
         document.getElementById('example-lesson-price').textContent = lessonPrice;
         document.getElementById('example-lesson-total').textContent = lessonPrice * 10;
@@ -145,8 +145,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Обновляем примеры при изменении полей
-    document.getElementById('{{ form.price_per_lesson.id_for_label }}').addEventListener('input', updateExamples);
-    document.getElementById('{{ form.price_per_month.id_for_label }}').addEventListener('input', updateExamples);
+    document.getElementById('{{ form.payment_day.id_for_label }}').addEventListener('input', updateExamples);
+    document.getElementById('{{ form.monthly_fee.id_for_label }}').addEventListener('input', updateExamples);
     
     // Инициализируем примеры
     updateExamples();

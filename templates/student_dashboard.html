@@ -299,8 +299,8 @@
     }
 
     .game-card:hover .game-icon {
-        transform: rotate(5deg) scale(1.1);
-        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.6);
+        transform: scale(1.1) rotate(5deg);
+        color: #667eea;
     }
 
     .game-title {
@@ -368,6 +368,21 @@
         text-decoration: none;
         transform: translateY(-3px);
         box-shadow: 0 20px 50px rgba(197, 48, 48, 0.4);
+    }
+
+    .no-games-message {
+        text-align: center;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        grid-column: 1 / -1;
+    }
+
+    .no-games-message p {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 10px 0;
+        font-size: 1.1rem;
     }
 
     @keyframes fadeInUp {
@@ -533,77 +548,27 @@
     <div class="games-section">
         <h2 class="section-title">🎮 Доступные игры</h2>
         <div class="games-grid">
-            <!-- Игра "Просто" -->
+            {% for game in available_games %}
             <div class="game-card">
                 <div class="game-icon">
-                    <i class="fas fa-plus"></i>
+                    <i class="{{ game.icon }}"></i>
                 </div>
-                <h3 class="game-title">Просто</h3>
+                <h3 class="game-title">{{ game.title }}</h3>
                 <p class="game-description">
-                    Тренируйте сложение и вычитание чисел. Выберите сложность и количество примеров.
+                    {{ game.description }}
                 </p>
-                <a href="{% url 'simply' 1 %}" class="game-btn">Начать игру</a>
+                {% if game.url == 'flashcards' %}
+                    <a href="{% url 'flashcards' %}" class="game-btn">Начать игру</a>
+                {% else %}
+                    <a href="{% url game.url 1 %}" class="game-btn">Начать игру</a>
+                {% endif %}
             </div>
-
-            <!-- Игра "Умножение" -->
-            <div class="game-card">
-                <div class="game-icon">
-                    <i class="fas fa-times"></i>
-                </div>
-                <h3 class="game-title">Умножение</h3>
-                <p class="game-description">
-                    Изучайте таблицу умножения с разными диапазонами чисел.
-                </p>
-                <a href="{% url 'multiplication_choose' 1 %}" class="game-btn">Начать игру</a>
+            {% empty %}
+            <div class="no-games-message">
+                <p>Учитель пока не настроил доступ к играм для вашего класса.</p>
+                <p>Игра "Просто" доступна всегда!</p>
             </div>
-
-            <!-- Игра "Умножение до 20" -->
-            <div class="game-card">
-                <div class="game-icon">
-                    <i class="fas fa-calculator"></i>
-                </div>
-                <h3 class="game-title">Умножение до 20</h3>
-                <p class="game-description">
-                    Специальная тренировка умножения чисел до 20.
-                </p>
-                <a href="{% url 'multiplication_to_20' 1 %}" class="game-btn">Начать игру</a>
-            </div>
-
-            <!-- Игра "Квадрат" -->
-            <div class="game-card">
-                <div class="game-icon">
-                    <i class="fas fa-square"></i>
-                </div>
-                <h3 class="game-title">Квадрат</h3>
-                <p class="game-description">
-                    Тренируйте возведение чисел в квадрат и умножение.
-                </p>
-                <a href="{% url 'square' 1 %}" class="game-btn">Начать игру</a>
-            </div>
-
-            <!-- Игра "Умножение от базы" -->
-            <div class="game-card">
-                <div class="game-icon">
-                    <i class="fas fa-sort-numeric-up"></i>
-                </div>
-                <h3 class="game-title">Умножение от базы</h3>
-                <p class="game-description">
-                    Специальные техники умножения с использованием базовых чисел.
-                </p>
-                <a href="{% url 'multiplication_base' 1 %}" class="game-btn">Начать игру</a>
-            </div>
-
-            <!-- Игра "Хитрости" -->
-            <div class="game-card">
-                <div class="game-icon">
-                    <i class="fas fa-magic"></i>
-                </div>
-                <h3 class="game-title">Хитрости</h3>
-                <p class="game-description">
-                    Изучайте специальные математические хитрости для быстрого счета.
-                </p>
-                <a href="{% url 'tricks' 1 %}" class="game-btn">Начать игру</a>
-            </div>
+            {% endfor %}
         </div>
     </div>
 

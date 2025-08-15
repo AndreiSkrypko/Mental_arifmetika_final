@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import TeacherProfile, Class, Students, StudentAccount, Homework, Attendance, PaymentSettings
+from .models import TeacherProfile, Class, Students, StudentAccount, Homework, Attendance, PaymentSettings, ClassGameAccess
 
 class TeacherRegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True, label='Имя')
@@ -207,24 +207,24 @@ class PaymentSettingsForm(forms.ModelForm):
     """Форма для настройки оплаты класса"""
     class Meta:
         model = PaymentSettings
-        fields = ['price_per_lesson', 'price_per_month']
+        fields = ['monthly_fee', 'payment_day']
         widgets = {
-            'price_per_lesson': forms.NumberInput(attrs={
+            'monthly_fee': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'step': '0.01',
                 'min': '0',
                 'placeholder': '0.00'
             }),
-            'price_per_month': forms.NumberInput(attrs={
+            'payment_day': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'step': '0.01',
-                'min': '0',
-                'placeholder': '0.00'
+                'min': '1',
+                'max': '31',
+                'placeholder': '15'
             }),
         }
         labels = {
-            'price_per_lesson': 'Цена за занятие (руб.)',
-            'price_per_month': 'Цена за месяц (руб.)'
+            'monthly_fee': 'Ежемесячная плата (руб.)',
+            'payment_day': 'День оплаты'
         }
 
 
@@ -291,4 +291,22 @@ class MonthlyAttendanceForm(forms.ModelForm):
             'is_paid': 'Оплачено',
             'payment_carried_over': 'Перенести на следующий месяц',
             'notes': 'Примечания'
+        }
+
+class ClassGameAccessForm(forms.ModelForm):
+    """Форма для настройки доступности игр для класса"""
+    class Meta:
+        model = ClassGameAccess
+        fields = ['game', 'is_enabled']
+        widgets = {
+            'game': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'is_enabled': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
+        labels = {
+            'game': 'Игра',
+            'is_enabled': 'Доступна'
         }

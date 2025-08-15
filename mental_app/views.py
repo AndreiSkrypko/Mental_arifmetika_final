@@ -1,12 +1,13 @@
 import random
 import time
+from datetime import datetime
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseForbidden
 from django.utils import timezone
-from .models import Students, TeacherProfile, Class, StudentAccount, Homework, Attendance, PaymentSettings, MonthlySchedule
+from .models import Students, TeacherProfile, Class, StudentAccount, Homework, Attendance, PaymentSettings, MonthlySchedule, ClassGameAccess
 from .forms import StudentForm, TeacherRegistrationForm, TeacherLoginForm, ClassForm, TeacherProfileUpdateForm, StudentAccountForm, StudentLoginForm, HomeworkForm, AttendanceForm, AttendanceDateForm, PaymentSettingsForm, MonthlyScheduleForm, MonthlyAttendanceForm
 
 # Определяем словарь диапазонов чисел
@@ -46,6 +47,7 @@ def index(request):
 
 
 # Обработчик выбора и проверки умножения
+@login_required
 def multiplication_choose(request, mode):
     if mode == 1:  # Этап выбора чисел
         if request.method == 'GET':  # Если запрос GET
@@ -151,6 +153,7 @@ def multiplication_choose(request, mode):
 
 
 # Обработчик выбора и проверки умножения до 20
+@login_required
 def multiplication_to_20(request, mode):
     if mode == 1:  # Этап выбора чисел
         if request.method == 'GET':  # Если запрос GET
@@ -260,6 +263,7 @@ def multiplication_to_20(request, mode):
 
 
 # Обработчик выбора и проверки возведения в квадрат
+@login_required
 def square(request, mode):
     if mode == 1:
         if request.method == 'GET':
@@ -351,6 +355,7 @@ def square(request, mode):
 
 
 # Обработчик выбора и проверки умножение от базы
+@login_required
 def multiplication_base(request, mode):
     if mode == 1:
         if request.method == 'GET':
@@ -481,6 +486,7 @@ def generate_three_digit_pair():
 
 
 # Обработчик выбора и проверки хитрости
+@login_required
 def tricks(request, mode):
     if mode == 1:
         if request.method == 'GET':
@@ -701,10 +707,10 @@ def students_list(request, class_id=None):
         
         if class_id:
             class_obj = get_object_or_404(Class, id=class_id, teacher=teacher_profile)
-            students = Students.objects.filter(student_class=class_obj)
+            students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
             context = {'students': students, 'class_obj': class_obj}
         else:
-            students = Students.objects.filter(student_class__teacher=teacher_profile)
+            students = Students.objects.filter(student_class__teacher=teacher_profile).order_by('surname', 'name')
             context = {'students': students}
         
         return render(request, 'students_list.html', context)
@@ -1049,9 +1055,92 @@ def student_dashboard(request):
     student_id = request.session['student_id']
     student = get_object_or_404(Students, id=student_id)
     
+    # Получаем доступные игры для класса ученика
+    available_games = []
+    if student.student_class:
+        # Получаем все игры, доступные для класса
+        class_games = ClassGameAccess.objects.filter(
+            class_group=student.student_class,
+            is_enabled=True
+        )
+        
+        # Добавляем отладочную информацию
+        print(f"DEBUG: Ученик {student.name} в классе {student.student_class.name}")
+        print(f"DEBUG: Найдено {class_games.count()} доступных игр")
+        
+        # Показываем все найденные игры
+        for game in class_games:
+            print(f"DEBUG: В БД найдена игра: {game.game} -> {game.is_enabled}")
+        
+        # Создаем список доступных игр
+        for game_access in class_games:
+            print(f"DEBUG: Игра {game_access.game} доступна")
+            if game_access.game == 'multiplication_choose':
+                available_games.append({
+                    'code': 'multiplication_choose',
+                    'title': 'Умножение',
+                    'description': 'Изучайте таблицу умножения с разными диапазонами чисел.',
+                    'icon': 'fas fa-times',
+                    'url': 'multiplication_choose'
+                })
+            elif game_access.game == 'multiplication_to_20':
+                available_games.append({
+                    'code': 'multiplication_to_20',
+                    'title': 'Умножение до 20',
+                    'description': 'Специальная тренировка умножения чисел до 20.',
+                    'icon': 'fas fa-calculator',
+                    'url': 'multiplication_to_20'
+                })
+            elif game_access.game == 'square':
+                available_games.append({
+                    'code': 'square',
+                    'title': 'Квадрат',
+                    'description': 'Тренируйте возведение чисел в квадрат и умножение.',
+                    'icon': 'fas fa-square',
+                    'url': 'square'
+                })
+            elif game_access.game == 'multiplication_base':
+                available_games.append({
+                    'code': 'multiplication_base',
+                    'title': 'Умножение от базы',
+                    'description': 'Специальные техники умножения с использованием базовых чисел.',
+                    'icon': 'fas fa-sort-numeric-up',
+                    'url': 'multiplication_base'
+                })
+            elif game_access.game == 'tricks':
+                available_games.append({
+                    'code': 'tricks',
+                    'title': 'Хитрости',
+                    'description': 'Изучайте специальные математические хитрости для быстрого счета.',
+                    'icon': 'fas fa-magic',
+                    'url': 'tricks'
+                })
+            elif game_access.game == 'flashcards':
+                available_games.append({
+                    'code': 'flashcards',
+                    'title': 'Флэшкарты',
+                    'description': 'Тренируйте ментальную арифметику с помощью счетов (абакуса).',
+                    'icon': 'fas fa-credit-card',
+                    'url': 'flashcards'
+                })
+            else:
+                print(f"DEBUG: Неизвестная игра: {game_access.game}")
+    
+    print(f"DEBUG: Итого доступно игр: {len(available_games)}")
+    
+    # Игра "Просто" всегда доступна
+    available_games.insert(0, {
+        'code': 'simply',
+        'title': 'Просто',
+        'description': 'Тренируйте сложение и вычитание чисел. Выберите сложность и количество примеров.',
+        'icon': 'fas fa-plus',
+        'url': 'simply'
+    })
+    
     context = {
         'student': student,
-        'student_name': request.session.get('student_name', '')
+        'student_name': request.session.get('student_name', ''),
+        'available_games': available_games
     }
     return render(request, 'student_dashboard.html', context)
 
@@ -1229,88 +1318,197 @@ def student_homework_list(request):
 
 @login_required
 def attendance_list(request, class_id):
-    """Список посещений для класса"""
-    try:
-        class_obj = Class.objects.get(id=class_id)
-        # Проверяем, что учитель имеет доступ к этому классу
-        if class_obj.teacher != request.user.teacher_profile:
-            return HttpResponseForbidden("У вас нет доступа к этому классу")
+    """Список посещений и оплат для класса"""
+    class_obj = get_object_or_404(Class, id=class_id)
+    
+    # Проверяем, что пользователь является учителем этого класса
+    if not hasattr(request.user, 'teacher_profile') or request.user.teacher_profile != class_obj.teacher:
+        return HttpResponseForbidden("У вас нет доступа к этому классу")
+    
+    # Получаем всех учеников класса
+    students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
+    
+    # Получаем все даты занятий для этого класса
+    attendance_dates = Attendance.objects.filter(
+        class_group=class_obj
+    ).values_list('date', flat=True).distinct().order_by('date')
+    
+    # Получаем данные о посещениях и оплатах
+    attendance_data = {}
+    for student in students:
+        student_attendances = {}
+        for date in attendance_dates:
+            attendance = Attendance.objects.filter(
+                class_group=class_obj,
+                student=student,
+                date=date
+            ).first()
+            
+            if attendance:
+                student_attendances[date] = {
+                    'is_present': attendance.is_present,
+                    'is_paid': attendance.is_paid
+                }
         
-        # Получаем все даты занятий для класса
-        attendance_dates = Attendance.objects.filter(
-            class_group=class_obj
-        ).values_list('date', flat=True).distinct().order_by('-date')
-        
-        # Получаем всех учеников класса
-        students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
-        
-        # Получаем настройки оплаты
-        try:
-            payment_settings = class_obj.payment_settings
-        except PaymentSettings.DoesNotExist:
-            payment_settings = None
-        
-        context = {
-            'class_obj': class_obj,
-            'students': students,
-            'attendance_dates': attendance_dates,
-            'payment_settings': payment_settings,
+        attendance_data[student.id] = {
+            'attendances': student_attendances
         }
-        return render(request, 'attendance_list.html', context)
-    except Class.DoesNotExist:
-        messages.error(request, 'Класс не найден')
-        return redirect('class_list')
-
+    
+    context = {
+        'class_obj': class_obj,
+        'students': students,
+        'attendance_dates': attendance_dates,
+        'attendance_data': attendance_data,
+    }
+    
+    return render(request, 'attendance_list.html', context)
 
 @login_required
 def attendance_create(request, class_id):
-    """Создание записи о посещении для определенной даты"""
+    """Создание одного занятия для класса"""
+    class_obj = get_object_or_404(Class, id=class_id)
+    
+    # Проверяем, что пользователь является учителем этого класса
+    if not hasattr(request.user, 'teacher_profile') or request.user.teacher_profile != class_obj.teacher:
+        return HttpResponseForbidden("У вас нет доступа к этому классу")
+    
+    if request.method == 'POST':
+        creation_type = request.POST.get('creation_type')
+        
+        if creation_type == 'single':
+            new_date_str = request.POST.get('new_date')
+            
+            if not new_date_str:
+                messages.error(request, 'Пожалуйста, выберите дату для занятия')
+                return render(request, 'attendance_create.html', {'class_obj': class_obj})
+            
+            try:
+                new_date = datetime.strptime(new_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                messages.error(request, 'Неверный формат даты')
+                return render(request, 'attendance_create.html', {'class_obj': class_obj})
+            
+            # Проверяем, не существует ли уже запись для этой даты
+            existing_attendance = Attendance.objects.filter(
+                class_group=class_obj,
+                date=new_date
+            ).first()
+            
+            if existing_attendance:
+                messages.error(request, f'Занятие на {new_date.strftime("%d.%m.%Y")} уже существует')
+                return render(request, 'attendance_create.html', {'class_obj': class_obj})
+            
+            # Получаем всех учеников класса
+            students = Students.objects.filter(student_class=class_obj)
+            
+            # Создаем записи посещения для всех учеников
+            attendance_records = []
+            for student in students:
+                attendance = Attendance.objects.create(
+                    student=student,
+                    class_group=class_obj,
+                    date=new_date,
+                    is_present=False,
+                    is_paid=False
+                )
+                attendance_records.append(attendance)
+            
+            messages.success(request, f'Успешно создано занятие на {new_date.strftime("%d.%m.%Y")} для {len(attendance_records)} учеников')
+            return redirect('attendance_list', class_id=class_id)
+    
+    return render(request, 'attendance_create.html', {'class_obj': class_obj})
+
+
+@login_required
+def attendance_add_date(request, class_id):
+    """Добавление отдельного занятия для класса"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+    
     try:
         class_obj = Class.objects.get(id=class_id)
         # Проверяем, что учитель имеет доступ к этому классу
         if class_obj.teacher != request.user.teacher_profile:
-            return HttpResponseForbidden("У вас нет доступа к этому классу")
+            return JsonResponse({'success': False, 'error': 'У вас нет доступа к этому классу'})
         
-        if request.method == 'POST':
-            date_form = AttendanceDateForm(request.POST)
-            if date_form.is_valid():
-                selected_date = date_form.cleaned_data['date']
-                
-                # Проверяем, не существует ли уже записи для этой даты
-                if Attendance.objects.filter(class_group=class_obj, date=selected_date).exists():
-                    messages.warning(request, f'Записи для {selected_date} уже существуют')
-                    return redirect('attendance_list', class_id=class_id)
-                
-                # Получаем всех учеников класса
-                students = Students.objects.filter(student_class=class_obj)
-                
-                # Создаем записи посещения для всех учеников
-                for student in students:
-                    Attendance.objects.create(
-                        student=student,
-                        class_group=class_obj,
-                        date=selected_date,
-                        is_present=True,  # По умолчанию присутствовал
-                        is_paid=False
-                    )
-                
-                messages.success(request, f'Записи посещения для {selected_date} созданы!')
-                return redirect('attendance_edit', class_id=class_id, date=selected_date)
-        else:
-            date_form = AttendanceDateForm()
+        new_date = request.POST.get('new_date')
+        if not new_date:
+            return JsonResponse({'success': False, 'error': 'Дата не указана'})
         
-        # Получаем всех учеников класса для отображения в шаблоне
-        students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
+        try:
+            new_date = timezone.datetime.strptime(new_date, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({'success': False, 'error': 'Неверный формат даты'})
         
-        return render(request, 'attendance_create.html', {
-            'date_form': date_form,
-            'class_obj': class_obj,
-            'students': students,
-            'title': 'Создать записи посещения'
-        })
+        # Убираем ограничения по учебному году - позволяем добавлять занятия на любую дату
+        
+        # Проверяем, не существует ли уже записи для этой даты
+        if Attendance.objects.filter(class_group=class_obj, date=new_date).exists():
+            return JsonResponse({'success': False, 'error': 'Занятие на эту дату уже существует'})
+        
+        # Получаем всех учеников класса
+        students = Students.objects.filter(student_class=class_obj)
+        
+        if not students.exists():
+            return JsonResponse({'success': False, 'error': 'В классе нет учеников'})
+        
+        # Создаем записи посещения для всех учеников
+        for student in students:
+            Attendance.objects.create(
+                student=student,
+                class_group=class_obj,
+                date=new_date,
+                is_present=False,  # По умолчанию не присутствовал
+                is_paid=False
+            )
+        
+        return JsonResponse({'success': True, 'message': f'Занятие на {new_date.strftime("%d.%m.%Y")} успешно добавлено'})
+        
     except Class.DoesNotExist:
-        messages.error(request, 'Класс не найден')
-        return redirect('class_list')
+        return JsonResponse({'success': False, 'error': 'Класс не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Произошла ошибка: {str(e)}'})
+
+
+@login_required
+def attendance_delete_date(request, class_id):
+    """Удаление отдельного занятия для класса"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'})
+    
+    try:
+        class_obj = Class.objects.get(id=class_id)
+        # Проверяем, что учитель имеет доступ к этому классу
+        if class_obj.teacher != request.user.teacher_profile:
+            return JsonResponse({'success': False, 'error': 'У вас нет доступа к этому классу'})
+        
+        import json
+        data = json.loads(request.body)
+        date_to_delete = data.get('date')
+        
+        if not date_to_delete:
+            return JsonResponse({'success': False, 'error': 'Дата не указана'})
+        
+        try:
+            date_to_delete = timezone.datetime.strptime(date_to_delete, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({'success': False, 'error': 'Неверный формат даты'})
+        
+        # Удаляем все записи посещения для этой даты
+        deleted_count = Attendance.objects.filter(
+            class_group=class_obj, 
+            date=date_to_delete
+        ).delete()[0]
+        
+        if deleted_count > 0:
+            return JsonResponse({'success': True, 'message': f'Занятие на {date_to_delete.strftime("%d.%m.%Y")} успешно удалено'})
+        else:
+            return JsonResponse({'success': False, 'error': 'Занятие на указанную дату не найдено'})
+        
+    except Class.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Класс не найден'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Произошла ошибка: {str(e)}'})
 
 
 @login_required
@@ -1330,16 +1528,29 @@ def attendance_edit(request, class_id, date):
         
         if request.method == 'POST':
             forms_valid = True
+            updated_attendances = []
+            
+            # Сначала проверяем все формы
             for attendance in attendances:
                 form = AttendanceForm(request.POST, instance=attendance, prefix=f'attendance_{attendance.id}')
                 if not form.is_valid():
                     forms_valid = False
                     break
+                updated_attendances.append((attendance, form))
             
             if forms_valid:
-                for attendance in attendances:
-                    form = AttendanceForm(request.POST, instance=attendance, prefix=f'attendance_{attendance.id}')
-                    form.save()
+                # Сохраняем все формы
+                for attendance, form in updated_attendances:
+                    # Получаем данные из формы
+                    is_present = form.cleaned_data.get('is_present', False)
+                    is_paid = form.cleaned_data.get('is_paid', False)
+                    notes = form.cleaned_data.get('notes', '')
+                    
+                    # Обновляем объект напрямую
+                    attendance.is_present = is_present
+                    attendance.is_paid = is_paid
+                    attendance.notes = notes
+                    attendance.save()
                 
                 messages.success(request, f'Посещения для {date} обновлены!')
                 return redirect('attendance_list', class_id=class_id)
@@ -1399,7 +1610,7 @@ def payment_settings_edit(request, class_id):
         # Получаем или создаем настройки оплаты
         payment_settings, created = PaymentSettings.objects.get_or_create(
             class_group=class_obj,
-            defaults={'price_per_lesson': 0, 'price_per_month': 0}
+            defaults={'payment_day': 0, 'monthly_fee': 0}
         )
         
         if request.method == 'POST':
@@ -1423,70 +1634,105 @@ def payment_settings_edit(request, class_id):
 
 def student_attendance_list(request):
     """Список посещений для ученика"""
-    if 'student_id' not in request.session:
-        return redirect('student_login')
-    
     try:
-        student = Students.objects.get(id=request.session['student_id'])
-        
-        if not student.student_class:
+        # Получаем ID ученика из сессии
+        student_id = request.session.get('student_id')
+        if not student_id:
             return redirect('student_login')
         
-        # Получаем все посещения ученика
+        student = Students.objects.get(id=student_id)
+        class_obj = student.student_class
+        
+        # Получаем все посещения ученика в этом классе
         attendances = Attendance.objects.filter(
-            student=student
+            student=student,
+            class_group=class_obj
         ).order_by('-date')
         
-        # Получаем настройки оплаты
+        # Получаем настройки оплаты для класса
         try:
-            payment_settings = student.student_class.payment_settings
+            payment_settings = PaymentSettings.objects.get(class_group=class_obj)
         except PaymentSettings.DoesNotExist:
-            payment_settings = None
-        
-        # Рассчитываем статистику и оплату
-        payment_info = None
-        if payment_settings:
-            current_month = timezone.now().month
-            current_year = timezone.now().year
-            
-            # Посещения за текущий месяц
-            month_attendances = attendances.filter(
-                date__month=current_month,
-                date__year=current_year
+            payment_settings = PaymentSettings.objects.create(
+                class_group=class_obj,
+                defaults={'payment_day': 0, 'monthly_fee': 0}
             )
-            
-            total_lessons = month_attendances.count()
-            attended_lessons = month_attendances.filter(is_present=True).count()
-            paid_lessons = month_attendances.filter(is_paid=True).count()
-            
-            # Расчет оплаты
-            if payment_settings.price_per_month > 0:
-                # Если установлена месячная оплата
-                monthly_payment = payment_settings.price_per_month
-                lessons_payment = 0
-            else:
-                # Если оплата по занятиям
-                monthly_payment = 0
-                lessons_payment = attended_lessons * payment_settings.price_per_lesson
-            
-            total_payment = monthly_payment + lessons_payment
-            
-            payment_info = {
-                'total_lessons': total_lessons,
-                'attended_lessons': attended_lessons,
-                'paid_lessons': paid_lessons,
-                'monthly_payment': monthly_payment,
-                'lessons_payment': lessons_payment,
-                'total_payment': total_payment,
-                'price_per_lesson': payment_settings.price_per_lesson,
-                'price_per_month': payment_settings.price_per_month,
-                'current_month': current_month,
-                'current_year': current_year
+        
+        # Группируем посещения по месяцам для создания табеля
+        from itertools import groupby
+        from operator import attrgetter
+        
+        # Сортируем по дате для группировки
+        attendances_sorted = sorted(attendances, key=attrgetter('date'))
+        
+        # Группируем по месяцу и году
+        monthly_attendances = {}
+        for attendance in attendances_sorted:
+            month_key = (attendance.date.year, attendance.date.month)
+            if month_key not in monthly_attendances:
+                monthly_attendances[month_key] = []
+            monthly_attendances[month_key].append(attendance)
+        
+        # Создаем структуру табеля
+        attendance_table = {}
+        for (year, month), month_attendances_list in monthly_attendances.items():
+            month_name = f"{year}-{month:02d}"
+            attendance_table[month_name] = {
+                'year': year,
+                'month': month,
+                'attendances': month_attendances_list,
+                'total_lessons': len(month_attendances_list),
+                'attended_lessons': sum(1 for a in month_attendances_list if a.is_present),
+                'paid_lessons': sum(1 for a in month_attendances_list if a.is_paid),
+                'carried_over': sum(1 for a in month_attendances_list if a.payment_carried_over)
             }
+        
+        # Расчет оплаты для текущего месяца
+        from datetime import datetime
+        current_date = datetime.now()
+        current_month = current_date.month
+        current_year = current_date.year
+        
+        # Получаем посещения за текущий месяц
+        month_attendances = attendances.filter(
+            date__month=current_month,
+            date__year=current_year
+        )
+        
+        total_lessons = month_attendances.count()
+        attended_lessons = month_attendances.filter(is_present=True).count()
+        paid_lessons = month_attendances.filter(is_paid=True).count()
+        
+        # Расчет оплаты
+        if payment_settings.monthly_fee > 0:
+            # Если установлена месячная оплата
+            monthly_payment = payment_settings.monthly_fee
+            lessons_payment = 0
+        else:
+            # Если оплата по занятиям
+            monthly_payment = 0
+            lessons_payment = attended_lessons * payment_settings.payment_day
+        
+        total_payment = monthly_payment + lessons_payment
+        
+        payment_info = {
+            'total_lessons': total_lessons,
+            'attended_lessons': attended_lessons,
+            'paid_lessons': paid_lessons,
+            'monthly_payment': monthly_payment,
+            'lessons_payment': lessons_payment,
+            'total_payment': total_payment,
+            'payment_day': payment_settings.payment_day,
+            'monthly_fee': payment_settings.monthly_fee,
+            'current_month': current_month,
+            'current_year': current_year
+        }
         
         return render(request, 'student_attendance_list.html', {
             'student': student,
+            'class_obj': class_obj,
             'attendances': attendances,
+            'attendance_table': attendance_table,
             'payment_info': payment_info
         })
     except Students.DoesNotExist:
@@ -1612,9 +1858,12 @@ def monthly_schedule_list(request, class_id):
         
         # Получаем настройки оплаты
         try:
-            payment_settings = class_obj.payment_settings
+            payment_settings = PaymentSettings.objects.get(class_group=class_obj)
         except PaymentSettings.DoesNotExist:
-            payment_settings = None
+            payment_settings = PaymentSettings.objects.create(
+                class_group=class_obj,
+                defaults={'payment_day': 0, 'monthly_fee': 0}
+            )
         
         context = {
             'class_obj': class_obj,
@@ -1639,41 +1888,76 @@ def monthly_schedule_edit(request, class_id, schedule_id):
         if class_obj.teacher != request.user.teacher_profile:
             return HttpResponseForbidden("У вас нет доступа к этому классу")
         
-        # Получаем все записи посещения для этого расписания
-        attendances = Attendance.objects.filter(
+        # Получаем всех учеников класса
+        students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
+        
+        # Получаем уникальные даты занятий для этого расписания
+        lesson_dates = Attendance.objects.filter(
             monthly_schedule=monthly_schedule
-        ).select_related('student').order_by('date', 'student__surname', 'student__name')
+        ).values_list('date', flat=True).distinct().order_by('date')
         
         if request.method == 'POST':
+            # Обрабатываем POST запрос
             forms_valid = True
-            for attendance in attendances:
-                form = MonthlyAttendanceForm(request.POST, instance=attendance, prefix=f'attendance_{attendance.id}')
-                if not form.is_valid():
-                    forms_valid = False
+            attendance_forms = []
+            
+            for student in students:
+                for date in lesson_dates:
+                    # Получаем или создаем запись посещения
+                    attendance, created = Attendance.objects.get_or_create(
+                        student=student,
+                        monthly_schedule=monthly_schedule,
+                        date=date,
+                        defaults={
+                            'is_present': True,
+                            'is_paid': False,
+                            'payment_carried_over': False
+                        }
+                    )
+                    
+                    form = MonthlyAttendanceForm(request.POST, instance=attendance, 
+                                               prefix=f'attendance_{student.id}_{date.strftime("%Y%m%d")}')
+                    if not form.is_valid():
+                        forms_valid = False
+                        break
+                    attendance_forms.append((attendance, form))
+                
+                if not forms_valid:
                     break
             
             if forms_valid:
-                for attendance in attendances:
-                    form = MonthlyAttendanceForm(request.POST, instance=attendance, prefix=f'attendance_{attendance.id}')
+                for attendance, form in attendance_forms:
                     form.save()
                 
                 messages.success(request, f'Расписание на {monthly_schedule} обновлено!')
                 return redirect('monthly_schedule_list', class_id=class_id)
         else:
-            # Создаем формы для каждой записи
+            # Создаем формы для каждой комбинации ученик-дата
             attendance_forms = []
-            for attendance in attendances:
-                form = MonthlyAttendanceForm(instance=attendance, prefix=f'attendance_{attendance.id}')
-                attendance_forms.append((attendance, form))
-        
-        # Получаем всех учеников класса для отображения в шаблоне
-        students = Students.objects.filter(student_class=class_obj).order_by('surname', 'name')
+            for student in students:
+                for date in lesson_dates:
+                    # Получаем или создаем запись посещения
+                    attendance, created = Attendance.objects.get_or_create(
+                        student=student,
+                        monthly_schedule=monthly_schedule,
+                        date=date,
+                        defaults={
+                            'is_present': True,
+                            'is_paid': False,
+                            'payment_carried_over': False
+                        }
+                    )
+                    
+                    form = MonthlyAttendanceForm(instance=attendance, 
+                                               prefix=f'attendance_{student.id}_{date.strftime("%Y%m%d")}')
+                    attendance_forms.append((student, date, attendance, form))
         
         return render(request, 'monthly_schedule_edit.html', {
             'class_obj': class_obj,
             'monthly_schedule': monthly_schedule,
             'attendance_forms': attendance_forms,
             'students': students,
+            'lesson_dates': lesson_dates,
             'title': f'Редактировать расписание на {monthly_schedule}'
         })
     except (Class.DoesNotExist, MonthlySchedule.DoesNotExist):
@@ -1823,6 +2107,10 @@ def get_abacus_representation(number, difficulty):
 
 def flashcards(request):
     """Игра Флэшкарты - показ счетов (абакуса) для тренировки ментальной арифметики"""
+    # Проверяем авторизацию ученика
+    if not request.session.get('student_id'):
+        return redirect('student_login')
+    
     if request.method == 'GET':
         return render(request, 'flashcards.html', {'mode': 1})
     
@@ -1891,7 +2179,7 @@ def flashcards(request):
                     'abacus_data': abacus_data
                 })
             elif current_index >= len(numbers) and showing:
-                # Показ карточек закончен, переходим к вводу ответов
+                # Показ карточек закончен, переходим к вводу ответа
                 request.session['flashcard_showing'] = False
                 return render(request, 'flashcards.html', {
                     'mode': 3,
@@ -1969,3 +2257,132 @@ def flashcards(request):
                 return redirect('flashcards')
     
     return redirect('flashcards')
+
+@login_required
+def configure_class_games(request, class_id):
+    """Настройка доступности игр для класса"""
+    if not hasattr(request.user, 'teacher_profile'):
+        messages.error(request, 'Доступ разрешен только учителям')
+        return redirect('index')
+    
+    try:
+        class_obj = Class.objects.get(id=class_id, teacher=request.user.teacher_profile)
+    except Class.DoesNotExist:
+        messages.error(request, 'Класс не найден')
+        return redirect('class_list')
+    
+    if request.method == 'POST':
+        # Обработка формы - получаем все игры сразу
+        games = request.POST.getlist('games')
+        enabled_list = request.POST.getlist('enabled')
+        
+        print(f"DEBUG: Получены игры: {games}")
+        print(f"DEBUG: Получены состояния: {enabled_list}")
+        
+        if games and enabled_list:
+            # Обновляем доступ ко всем играм
+            for i, game_code in enumerate(games):
+                if i < len(enabled_list):
+                    is_enabled = enabled_list[i] == 'true'
+                    print(f"DEBUG: Обновляем игру {game_code} -> {is_enabled}")
+                    
+                    # Создаем или обновляем доступ к игре
+                    game_access, created = ClassGameAccess.objects.get_or_create(
+                        class_group=class_obj,
+                        game=game_code,
+                        defaults={'is_enabled': is_enabled}
+                    )
+                    if not created:
+                        game_access.is_enabled = is_enabled
+                        game_access.save()
+                    
+                    print(f"DEBUG: {'Создана' if created else 'Обновлена'} запись для игры {game_code}")
+            
+            messages.success(request, f'Настройки игр для класса обновлены')
+            return redirect('configure_class_games', class_id=class_id)
+    
+    # Получаем все доступные игры
+    available_games = ClassGameAccess.GAME_CHOICES
+    
+    # Получаем текущие настройки для класса
+    current_access = {}
+    print(f"DEBUG: Получаем настройки игр для класса {class_obj.name}")
+    for game_code, game_name in available_games:
+        try:
+            access = ClassGameAccess.objects.get(class_group=class_obj, game=game_code)
+            current_access[game_code] = access.is_enabled
+            print(f"DEBUG: Игра {game_code} -> {access.is_enabled}")
+        except ClassGameAccess.DoesNotExist:
+            current_access[game_code] = False
+            print(f"DEBUG: Игра {game_code} -> не найдена в БД")
+    
+    print(f"DEBUG: Итоговые настройки: {current_access}")
+    
+    context = {
+        'class_obj': class_obj,
+        'available_games': available_games,
+        'current_access': current_access,
+    }
+    
+    return render(request, 'configure_class_games.html', context)
+
+@login_required
+def attendance_update(request):
+    """Обновление посещений через AJAX"""
+    if request.method == 'POST':
+        try:
+            import json
+            data = json.loads(request.body)
+            
+            student_id = data.get('student_id')
+            date = data.get('date')
+            update_type = data.get('type')  # 'attendance' или 'payment'
+            value = data.get('value')
+            
+            if not all([student_id, date, update_type, value is not None]):
+                return JsonResponse({'success': False, 'error': 'Не все параметры переданы'})
+            
+            # Получаем студента
+            try:
+                student = Students.objects.get(id=student_id)
+            except Students.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Студент не найден'})
+            
+            # Проверяем, что учитель имеет доступ к классу студента
+            if not hasattr(request.user, 'teacher_profile') or student.student_class.teacher != request.user.teacher_profile:
+                return JsonResponse({'success': False, 'error': 'Нет доступа к этому классу'})
+            
+            # Получаем или создаем запись посещения
+            attendance, created = Attendance.objects.get_or_create(
+                student=student,
+                class_group=student.student_class,
+                date=date,
+                defaults={
+                    'is_present': False,
+                    'is_paid': False,
+                    'notes': ''
+                }
+            )
+            
+            # Обновляем соответствующее поле
+            if update_type == 'attendance':
+                attendance.is_present = value
+            elif update_type == 'payment':
+                attendance.is_paid = value
+            else:
+                return JsonResponse({'success': False, 'error': 'Неверный тип обновления'})
+            
+            attendance.save()
+            
+            return JsonResponse({
+                'success': True, 
+                'message': f'Обновлено: {update_type} = {value}',
+                'attendance_id': attendance.id
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Неверный формат JSON'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Только POST запросы'})

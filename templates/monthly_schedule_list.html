@@ -412,7 +412,7 @@
                             <div class="schedule-info">
                                 <div class="info-row">
                                     <span class="info-label">Количество занятий:</span>
-                                    <span class="info-value">{{ schedule.attendances.count }}</span>
+                                    <span class="info-value">{{ schedule.get_unique_lesson_dates_count }}</span>
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Дата создания:</span>

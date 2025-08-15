@@ -80,11 +80,13 @@
             <span>Табель посещений</span>
         </a>
 
-        <a href="{% url 'monthly_schedule_list' class.id %}"
-           class="action-btn info-btn"
-           title="Месячное планирование">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Месячное планирование</span>
+
+
+        <a href="{% url 'configure_class_games' class.id %}"
+           class="action-btn game-btn"
+           title="Настройка игр">
+            <i class="fas fa-gamepad"></i>
+            <span>Игры</span>
         </a>
 
                         <a href="{% url 'student_create_in_class' class.id %}" 
@@ -432,6 +434,19 @@ function confirmDelete(className, deleteUrl) {
     .delete-btn:hover {
         background: #ef4444;
         color: white;
+        transform: translateY(-2px);
+    }
+
+    .game-btn {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .game-btn:hover {
+        background: #8b5cf6;
+        color: white;
+        text-decoration: none;
         transform: translateY(-2px);
     }
 

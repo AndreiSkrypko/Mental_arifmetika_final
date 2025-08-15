@@ -368,6 +368,123 @@
         opacity: 0.8;
     }
 
+    /* Styles for the new table structure */
+    .attendance-table-container {
+        overflow-x: auto;
+        margin-bottom: 30px;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+        background-color: #f9f9f9;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .attendance-table th, .attendance-table td {
+        padding: 15px 20px;
+        text-align: center;
+        border: 1px solid #e0e0e0;
+    }
+
+    .attendance-table th {
+        background-color: #f0f0f0;
+        font-weight: 600;
+        color: #333;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .attendance-table .student-column {
+        width: 300px; /* Adjust as needed */
+        text-align: left;
+        padding-left: 30px;
+    }
+
+    .attendance-table .date-column {
+        width: 120px; /* Adjust as needed */
+    }
+
+    .date-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .date-day {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .date-month {
+        font-size: 0.8rem;
+        color: #666;
+        text-transform: uppercase;
+    }
+
+    .date-weekday {
+        font-size: 0.7rem;
+        color: #888;
+        text-transform: uppercase;
+    }
+
+    .attendance-table .attendance-cell {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        transition: background-color 0.3s ease;
+    }
+
+    .attendance-table .attendance-cell:hover {
+        background-color: #f5f5f5;
+    }
+
+    .attendance-table .attendance-cell .attendance-controls {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .attendance-table .attendance-cell .control-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .attendance-table .attendance-cell .control-label {
+        font-size: 0.8rem;
+        color: #555;
+    }
+
+    .attendance-table .attendance-cell .notes-field {
+        margin-top: 0; /* Remove margin-top from notes-field */
+    }
+
+    .attendance-table .attendance-cell .notes-field textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        resize: vertical;
+        min-height: 60px;
+        background: #f0f0f0;
+    }
+
+    .attendance-table .attendance-cell .notes-field textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+
     @media (max-width: 768px) {
         .monthly-schedule-edit-container {
             padding: 20px 10px;
@@ -396,6 +513,38 @@
             width: 100%;
             max-width: 300px;
             justify-content: center;
+        }
+
+        .attendance-table {
+            font-size: 0.9rem;
+        }
+
+        .attendance-table th, .attendance-table td {
+            padding: 10px 15px;
+        }
+
+        .attendance-table .student-column {
+            padding-left: 20px;
+        }
+
+        .attendance-table .attendance-cell .attendance-controls {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .attendance-table .attendance-cell .control-group {
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .attendance-table .attendance-cell .control-label {
+            font-size: 0.7rem;
+        }
+
+        .attendance-table .attendance-cell .notes-field textarea {
+            padding: 5px;
+            font-size: 0.8rem;
+            min-height: 50px;
         }
     }
 </style>
@@ -433,7 +582,7 @@
             <h4>📊 Статистика</h4>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-number" id="total-lessons">{{ monthly_schedule.attendances.count }}</div>
+                    <div class="stat-number" id="total-lessons">{{ monthly_schedule.get_unique_lesson_dates_count }}</div>
                     <div class="stat-label">Всего занятий</div>
                 </div>
                 <div class="stat-item">
@@ -457,56 +606,78 @@
 
         <!-- Форма заполнения -->
         <div class="attendance-form-section">
-            <h2 class="section-title">👥 Ученики класса "{{ class_obj.name }}"</h2>
+            <h2 class="section-title">👥 Табель посещаемости класса "{{ class_obj.name }}"</h2>
 
             {% if students %}
                 <form method="post">
                     {% csrf_token %}
                     
-                    {% for attendance, form in attendance_forms %}
-                        <div class="student-row">
-                            <div class="student-header">
-                                <div class="student-info">
-                                    <div class="student-name">{{ attendance.student.surname }} {{ attendance.student.name }}</div>
-                                    <div class="student-details">
-                                        <strong>Дата:</strong> {{ attendance.date|date:"d.m.Y" }} ({{ attendance.date|date:"l" }})
-                                        {% if attendance.student.parent_first_name or attendance.student.parent_last_name %}
-                                            <br><strong>Родители:</strong> {{ attendance.student.parent_last_name }} {{ attendance.student.parent_first_name }}
-                                        {% endif %}
-                                        {% if attendance.student.parent_phone_number %}
-                                            <br><strong>Телефон:</strong> 📞 {{ attendance.student.parent_phone_number }}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                
-                                <div class="attendance-controls">
-                                    <div class="control-group">
-                                        <label class="control-label">Присутствие</label>
-                                        {{ form.is_present }}
-                                    </div>
-                                    
-                                    <div class="control-group">
-                                        <label class="control-label">Оплата</label>
-                                        {{ form.is_paid }}
-                                    </div>
+                    <!-- Таблица посещаемости -->
+                    <div class="attendance-table-container">
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th class="student-column">Ученик</th>
+                                    {% for date in lesson_dates %}
+                                        <th class="date-column">
+                                            <div class="date-header">
+                                                <div class="date-day">{{ date|date:"d" }}</div>
+                                                <div class="date-month">{{ date|date:"M" }}</div>
+                                                <div class="date-weekday">{{ date|date:"D" }}</div>
+                                            </div>
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                    <tr class="student-row">
+                                        <td class="student-info-cell">
+                                            <div class="student-name">{{ student.surname }} {{ student.name }}</div>
+                                            {% if student.parent_first_name or student.parent_last_name %}
+                                                <div class="student-parents">
+                                                    {{ student.parent_last_name }} {{ student.parent_first_name }}
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        {% for date in lesson_dates %}
+                                            {% for s, d, attendance, form in attendance_forms %}
+                                                {% if s.id == student.id and d == date %}
+                                                    <td class="attendance-cell">
+                                                        <div class="attendance-controls">
+                                                            <div class="control-group">
+                                                                <label class="control-label">Присутствие</label>
+                                                                {{ form.is_present }}
+                                                            </div>
+                                                            
+                                                            <div class="control-group">
+                                                                <label class="control-label">Оплата</label>
+                                                                {{ form.is_paid }}
+                                                            </div>
 
-                                    <div class="control-group">
-                                        <label class="control-label">Перенести</label>
-                                        {{ form.payment_carried_over }}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="notes-field">
-                                {{ form.notes }}
-                            </div>
-                        </div>
-                    {% endfor %}
+                                                            <div class="control-group">
+                                                                <label class="control-label">Перенести</label>
+                                                                {{ form.payment_carried_over }}
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="notes-field">
+                                                            {{ form.notes }}
+                                                        </div>
+                                                    </td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
 
                     <div class="form-actions">
                         <button type="submit" class="save-btn">
                             <i class="fas fa-save"></i>
-                            Сохранить расписание
+                            Сохранить табель
                         </button>
                         <a href="{% url 'monthly_schedule_list' class_obj.id %}" class="back-btn">
                             <i class="fas fa-arrow-left"></i>
@@ -533,48 +704,58 @@
 
 <script>
     function updateStats() {
-        const totalLessons = {{ monthly_schedule.attendances.count }};
+        const totalLessons = {{ monthly_schedule.get_unique_lesson_dates_count }};
+        const totalStudents = {{ students.count }};
         let presentCount = 0;
         let absentCount = 0;
         let paidCount = 0;
         let carryoverCount = 0;
         
-        // Подсчитываем статистику
-        document.querySelectorAll('.attendance-checkbox').forEach(checkbox => {
-            if (checkbox.checked) {
-                presentCount++;
-            } else {
-                absentCount++;
-            }
-        });
+        // Подсчитываем статистику по ученикам
+        const studentAttendanceMap = new Map();
+        const studentPaymentMap = new Map();
+        const studentCarryoverMap = new Map();
         
-        document.querySelectorAll('.payment-checkbox').forEach(checkbox => {
-            if (checkbox.checked) {
-                paidCount++;
+        // Проходим по всем ячейкам посещаемости
+        document.querySelectorAll('.attendance-cell').forEach((cell) => {
+            const studentRow = cell.closest('.student-row');
+            const studentName = studentRow.querySelector('.student-name').textContent.trim();
+            
+            // Проверяем чекбокс присутствия
+            const attendanceCheckbox = cell.querySelector('input[name*="is_present"]');
+            if (attendanceCheckbox && attendanceCheckbox.checked) {
+                studentAttendanceMap.set(studentName, true);
             }
-        });
-
-        document.querySelectorAll('.carryover-checkbox').forEach(checkbox => {
-            if (checkbox.checked) {
-                carryoverCount++;
+            
+            // Проверяем чекбокс оплаты
+            const paymentCheckbox = cell.querySelector('input[name*="is_paid"]');
+            if (paymentCheckbox && paymentCheckbox.checked) {
+                studentPaymentMap.set(studentName, true);
+            }
+            
+            // Проверяем чекбокс переноса
+            const carryoverCheckbox = cell.querySelector('input[name*="payment_carried_over"]');
+            if (carryoverCheckbox && carryoverCheckbox.checked) {
+                studentCarryoverMap.set(studentName, true);
             }
         });
         
         // Обновляем отображение
-        document.getElementById('present-count').textContent = presentCount;
-        document.getElementById('absent-count').textContent = absentCount;
-        document.getElementById('paid-count').textContent = paidCount;
-        document.getElementById('carryover-count').textContent = carryoverCount;
+        document.getElementById('present-count').textContent = studentAttendanceMap.size;
+        document.getElementById('absent-count').textContent = totalStudents - studentAttendanceMap.size;
+        document.getElementById('paid-count').textContent = studentPaymentMap.size;
+        document.getElementById('carryover-count').textContent = studentCarryoverMap.size;
     }
     
-    // Инициализируем статистику при загрузке страницы
+    // Обновляем статистику при изменении чекбоксов
     document.addEventListener('DOMContentLoaded', function() {
-        updateStats();
-        
-        // Добавляем обработчики событий для обновления статистики
-        document.querySelectorAll('.attendance-checkbox, .payment-checkbox, .carryover-checkbox').forEach(checkbox => {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', updateStats);
         });
+        
+        // Инициализируем статистику
+        updateStats();
     });
 </script>
 {% endblock %}
